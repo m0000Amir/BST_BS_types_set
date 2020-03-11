@@ -10,8 +10,8 @@ import numpy as np
 
 from collections import deque
 from main.table import Table
-from main.input import placement, gateway_placement, limit_cost, sta
-from main.figure import draw
+# from main.solver import placement, gateway_placement, cost_limit, delay_limit
+# from main.solver import sta, arrival_rate
 
 
 class ParameterRange:
@@ -31,19 +31,25 @@ class Node:
         self.comm_dist = ParameterRange()
         self.noncov = ParameterRange()
         self.cost = 0
+        self.delay = 0
         self.not_close = True
 
 
 class BST:
-    """Binary search tree for our optimal placement problem"""
-    def __init__(self, place, gateway, limit, station):
+    """Binary search tree for an optimal placement problem"""
+    def __init__(self, place, gateway, cost, delay, station, arrival):
         self.place = place
         self.gtw = gateway
-        self.limit = limit
+        self.cost_limit = cost
+        self.delay_limit = delay
         self.sta = station
+        self.arival_rate = arrival
+
         self.cov = tuple(self.sta[i]['r'] for i in self.sta)
         self.comm_dist = tuple(self.sta[i]['R'] for i in self.sta)
         self.cost = tuple(self.sta[i]['c'] for i in self.sta)
+        self.departure_rate = tuple(self.sta[i]['mu'] for i in self.sta)
+
         self.top = None
         self.graph = nx.DiGraph()
         self.table = Table()
@@ -96,7 +102,7 @@ class BST:
         forbidden_place = sum_by_row[np.where(sum_by_row == 0)]
         if len(self.place) == len(forbidden_place):
             return False
-        if len(self.unchecked_node) is 0 and node.not_close is False:
+        if len(self.unchecked_node) == 0 and node.not_close is False:
             return False
         return True
 
@@ -108,7 +114,11 @@ class BST:
     def is_able_exist(self):
         """ checking the existence of feasible solution """
         max_range = max(self.comm_dist)
-        without_max_range = tuple(i for i in self.comm_dist if i != max_range)
+        max_range_index = self.comm_dist.index(max_range)
+
+        without_max_range = tuple(self.comm_dist[i]
+                                  for i in range(len(self.comm_dist))
+                                  if i != max_range_index)
         max_range_2 = max(without_max_range)
 
         last = self.gtw[-1]
@@ -256,20 +266,33 @@ class BST:
                         return node.not_close
         return node.not_close
 
-    def get_placement(self, pi):
+    def get_placement(self, node):
         """
 
-        :param pi: pi matrix
+        :param node: tree node
         :return: to print placed stations
         """
-        i, j = np.where(pi == 1)
+        i, j = np.where(node.pi == 1)
         placed_sta = [np.inf] * len(self.place)
         for k in range(len(i)):
             placed_sta[i[k]] = j[k] + 1
-        print('Placed stations = ', placed_sta)
+        # draw(self.graph)
+        self.table.print_record.append(
+            'Placed stations = ' + str(placed_sta) +
+            '; Noncoverage = ' + str(self.table.record[-1]) +
+            '; Cost =  ' + str(node.cost) +
+            '; Delay =  ' + str(node.delay) +
+            '; Node of record =  ' + str(node.key)
+        )
+        print(self.table.print_record[-1])
 
     def check_cost(self, node):
-        if node.cost > self.limit:
+        if node.cost > self.cost_limit:
+            return False
+        return True
+
+    def check_delay(self, node):
+        if node.delay > self.delay_limit:
             return False
         return True
 
@@ -279,13 +302,15 @@ class BST:
         :param node:
         :return: True or False
         """
+
         if node.noncov_estimate < self.table.record[-1]:
             if (node.comm_dist.left + node.comm_dist.right) >= \
                     (self.gtw[1]-self.gtw[0]):
                 node_noncov = node.noncov.left + node.noncov.right
-                if (node_noncov < self.table.record[-1]) and self.check_cost(node):
+                if ((node_noncov < self.table.record[-1]) and
+                        self.check_cost(node) and self.check_delay(node)):
                     self.table.record.append(node_noncov)
-                    self.get_placement(node.pi)
+                    self.get_placement(node)
             return True
         else:
             return False
@@ -328,7 +353,7 @@ class BST:
         :return: Noncoverage estimate
         """
         i, j = np.where(node.pi == 1)
-        if len(i) is 0:
+        if len(i) == 0:
             place1 = self.gtw[0]
             cov1 = 0
         else:
@@ -358,11 +383,16 @@ class BST:
                                            self.cov[s_ind],
                                            sum(2*unplaced_cov))
         # node noncoverage
-        node.left.noncov.left = node.noncov.left + left_noncov
+        node.left.noncov.left = left_noncov
         node.left.noncov.right = (self.gtw[-1] -
                                   self.place[p_ind]) - self.cov[s_ind]
 
         return left_noncov + right_noncov
+
+    def add_delay(self, j):
+        rho = self.arival_rate / self.departure_rate[j]
+        mean_system_size = rho / (1 - rho)
+        return round(mean_system_size / self.arival_rate, 5)
 
     def add_child_nodes(self, node, key):
         """
@@ -377,14 +407,16 @@ class BST:
 
             # add left node
             key += 1
+
             self.nodes.append(key)
             node.left = Node(left_pi, key)
             node.left.noncov_estimate = self.noncoverage(i, j, node)
             node.left.cost = node.cost + self.cost[j]
+            node.left.delay = node.delay + self.add_delay(j)
             self.graph.add_edge(node.key, node.left.key)
             self.table.add(i, j, node.left.pi[i, j],
                            node.left.noncov_estimate, key)
-            draw(self.graph)
+            # draw(self.graph)
 
             # add right node
             key += 1
@@ -394,11 +426,12 @@ class BST:
             node.right.noncov.left = node.noncov.left
             node.right.noncov.right = node.noncov.right
             node.right.cost = node.cost
+            node.right.delay = node.delay
             self.graph.add_edge(node.key, node.right.key)
             self.table.add(i, j, node.left.pi[i, j],
                            node.right.noncov_estimate, key)
 
-            draw(self.graph)
+            # draw(self.graph)
             self.unchecked_node.append(node.right)
 
             if (self.check_link(node, i, j) and
@@ -407,7 +440,7 @@ class BST:
             self.unchecked_node.pop()
             return [node.right, key]
         else:
-            if len(self.unchecked_node) is not 0:
+            if len(self.unchecked_node) != 0:
                 node = self.unchecked_node[-1]
                 self.unchecked_node.pop()
 
@@ -424,7 +457,8 @@ class BST:
             parent, key = self.add_child_nodes(parent, key)
 
 
-solution = BST(placement, gateway_placement, limit_cost, sta)
-solution.search()
-# draw(solution.graph)
-print('record =  ', solution.table.record[-1])
+# solution = BST(placement, gateway_placement, cost_limit, delay_limit, sta,
+#                arrival_rate)
+# solution.search()
+# # draw(solution.graph)
+# print('record =  ', solution.table.record[-1])
