@@ -7,7 +7,7 @@ from bab.bst import Tree
 from bab.schedule import Schedule
 from bab.evaluation import solve_noncoverage, solve_cost, solve_delay
 from bab.feasible_placement import check_link
-from bab.branch_and_bound import check_estimate
+from bab.branch_and_bound import check_estimate_old_func
 from drawing.figure import draw
 
 
@@ -64,8 +64,8 @@ def get(input_data, share=0.1):
             # draw(tree.graph)
 
             if (check_link(i, j, parent, place, comm_dist, gtw) and
-                check_estimate(parent.left_child, statistics, place, gtw,
-                               cost_limit, delay_limit, deviation)):
+                check_estimate_old_func(parent.left_child, statistics, place, gtw,
+                                        cost_limit, delay_limit, deviation)):
                 parent = parent.left_child
             else:
                 tree.unchecked_node.pop()
@@ -73,3 +73,5 @@ def get(input_data, share=0.1):
         else:
             parent = tree.unchecked_node[-1]
             tree.unchecked_node.pop()
+        # draw(tree.graph)
+    print('Total number of nodes is {}'.format(tree.node_keys[-1]))

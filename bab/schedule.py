@@ -5,6 +5,9 @@ record.
 """
 
 
+from termcolor import colored
+
+
 class Schedule:
     """
     Solution record
@@ -22,8 +25,9 @@ class Schedule:
         self.print_record = list()
 
     def __str__(self):
-        return "Record = {},  Cost = {},  Delay =  {},  node = {}".format(
-            self.noncoverage[-1], self.cost[-1], self.delay[-1], self.step[-1])
+        return colored("Record = {},  Cost = {},  Delay =  {},  node = {}".format(
+            self.noncoverage[-1], self.cost[-1], self.delay[-1], self.step[-1]),
+            'magenta', attrs=['bold', 'blink'])
 
     def add(self, p, s, node):
         """
