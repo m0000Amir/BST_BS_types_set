@@ -9,7 +9,7 @@ from typing import Tuple, Any
 
 
 from bab.bst import Node
-from bab.feasible_placement import is_able_link_btwn_gtw
+from connection.feasible_placement import is_able_link_btwn_gtw
 # from bab.evaluation import mean_service_time
 from bab.schedule import Schedule
 from estimation.noncoverage import get_noncoverage

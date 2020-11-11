@@ -1,9 +1,11 @@
 """ Getting base stations placement"""
 import json
 
-import pandas as pd
 
-from bab import optimal_solution
+import pandas as pd
+from termcolor import colored
+
+from solution import optimal_solution, search
 
 
 class Problem:
@@ -16,9 +18,11 @@ class Problem:
     def __init__(self, dataset):
         self.placement = tuple(dataset['placement'])
         self.gateway_placement = tuple(dataset['gateway_placement'])
-        self.arrival_rate = dataset['arrival_rate']
-        self.delay_limit = dataset['delay_limit']
+        self.gateway = dataset['gateway']
+        self.user_device = dataset['user_device']
         self.cost_limit = dataset['cost_limit']
+        self.delay_limit = dataset['delay_limit']
+        self.arrival_rate = dataset['arrival_rate']
         self.sta = dataset['sta']
 
 
@@ -34,5 +38,9 @@ with open('input.json') as json_file:
 
     for i in input_dataset.keys():
         input_data = Problem(input_dataset[i])
-        output = optimal_solution.get(input_data, SHARE)
-
+        # print(colored('==========OLD ESTIMATE EMETHOD=============',
+        #               'cyan', attrs=['bold']))
+        # output = optimal_solution.get(input_data, SHARE)
+        print(colored('==========NEW ESTIMATE EMETHOD=============',
+                      'cyan', attrs=['bold']))
+        output = search.get(input_data, SHARE)

@@ -6,7 +6,7 @@ right gateway in tandem network
 """
 from typing import Tuple, Any
 
-from .bst import Node
+from bab.bst import Node
 
 import numpy as np
 
