@@ -79,9 +79,11 @@ class UserDeviceParameterSet:
 class GatewayParameterSet:
     """This parameters is used to calculate
     link distance parameter between station and gateway"""
-    p_gateway: float
-    g_gateway: float
-    l_gateway: float
+    p_tr: float
+    g_tr: float
+    p_recv: float
+    g_recv: float
+    l_recv: float
 
 
 @dataclass
@@ -95,7 +97,7 @@ class GetDistanceInput:
     l_recv: float
 
 
-def get_distance(lb_input, som: float = 10, f: float = 2437, k: float = -27.55):
+def get_distance(lb_input, som: float = 10, f: float = 5580, k: float = -27.55):
     """
     Calculate distance parameter (link distance or coverage) using by link
     budget equation.
@@ -129,14 +131,17 @@ def get_value(gateway, user_device, sta):
         l_ud_coverage=user_device['Lrecv'],
     )
     gtw_param = GatewayParameterSet(
-        p_gateway=gateway['Precv'],
-        g_gateway=gateway['Grecv'],
-        l_gateway=gateway['Lrecv'],
+        p_tr=gateway['Ptr'],
+        g_tr=gateway['Gtr'],
+        p_recv=gateway['Precv'],
+        g_recv=gateway['Grecv'],
+        l_recv=gateway['Lrecv'],
     )
     i = [_ for _ in range(len(sta_param.p_tr_link))]
     j = [_ for _ in range(len(sta_param.p_tr_link))]
     link_distance = np.zeros([len(i), len(j)])
     link_distance2gtw = np.zeros([len(i)])
+    gtw2link_distance = np.zeros([len(i)])
     coverage = np.zeros([len(i)])
     for s1, s2 in product(i, j):
         if s1 != s2:
@@ -151,10 +156,19 @@ def get_value(gateway, user_device, sta):
         ld2gtw_input = GetDistanceInput(p_tr=sta_param.p_tr_link[s1],
                                         l_tr=sta_param.l_tr[s1],
                                         g_tr=sta_param.g_tr_link[s1],
-                                        p_recv=gtw_param.p_gateway,
-                                        g_recv=gtw_param.g_gateway,
-                                        l_recv=gtw_param.l_gateway)
+                                        p_recv=gtw_param.p_recv,
+                                        g_recv=gtw_param.g_recv,
+                                        l_recv=gtw_param.l_recv)
         link_distance2gtw[s1] = get_distance(ld2gtw_input)
+    for s1 in i:
+        gtw2ld_input = GetDistanceInput(p_tr=gtw_param.p_tr,
+                                        g_tr=gtw_param.g_tr,
+                                        l_tr=gtw_param.l_recv,
+                                        p_recv=sta_param.p_recv_link[s1],
+                                        l_recv=sta_param.l_recv_link[s1],
+                                        g_recv=sta_param.g_recv_link[s1],
+                                        )
+        gtw2link_distance[s1] = get_distance(gtw2ld_input)
     for s1 in i:
         coverage_input = GetDistanceInput(p_tr=sta_param.p_tr_link[s1],
                                           l_tr=sta_param.l_tr[s1],
@@ -163,6 +177,10 @@ def get_value(gateway, user_device, sta):
                                           g_recv=ud_param.g_ud_coverage,
                                           l_recv=ud_param.l_ud_coverage)
         coverage[s1] = get_distance(coverage_input)
+    print('coverage = {}'.format(coverage))
+    print('link distance = {}'.format(link_distance))
+    print('link distance 2 gateway = {}'.format(link_distance2gtw))
+    print('gateway 2 link distance = {}'.format(gtw2link_distance))
     return link_distance, link_distance2gtw, coverage
 
 

@@ -1,0 +1,7 @@
+;1
+arrival_rate;4
+cost_limit;32
+delay_limit;2
+gateway_placement;[0, 50]
+placement;[20, 30, 40]
+sta;{'1': {'R': 40, 'r': 20, 'c': 30, 'mu': 5}, '2': {'R': 20, 'r': 5, 'c': 1, 'mu': 6}}

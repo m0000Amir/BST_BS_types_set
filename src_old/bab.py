@@ -9,9 +9,10 @@ import networkx as nx
 import numpy as np
 
 from collections import deque
-from main.table import Table
-# from main.solver import placement, gateway_placement, cost_limit, delay_limit
-# from main.solver import sta, arrival_rate
+from src_old.placement_solution import Schedule
+# from src_old.solver import placement, gateway_placement, cost_limit, delay_limit
+# from src_old.solver import sta, arrival_rate
+from src_old.figure import draw
 
 
 class ParameterRange:
@@ -28,6 +29,8 @@ class Node:
         self.left = None
         self.right = None
         self.noncov_estimate = None
+        self.delay_estimate = None
+        self.cost_estimate = None
         self.comm_dist = ParameterRange()
         self.noncov = ParameterRange()
         self.cost = 0
@@ -52,7 +55,7 @@ class BST:
 
         self.top = None
         self.graph = nx.DiGraph()
-        self.table = Table()
+        self.table = Schedule()
         self.unchecked_node = deque()  # Stack of unchecked right child nodes
         self.nodes = deque()  # Stack of all nodes
 
@@ -222,8 +225,6 @@ class BST:
         :return: -True if link range of unplaced station is greater than
             distance or False otherwise
         """
-        if node.key == 8:
-            a = 1
         _, j = np.where(node.pi == 1)
         unplaced = [self.comm_dist[i]
                     for i in range(len(self.comm_dist))
@@ -314,6 +315,19 @@ class BST:
             return True
         else:
             return False
+        # TODO: check this method
+        # if (node.noncov_estimate < self.table.record[-1] and
+        #         node.cost_estimate < self.cost_limit and
+        #         node.delay_estimate < self.delay_limit):
+        #     if (node.comm_dist.left + node.comm_dist.right) >= \
+        #             (self.gtw[1]-self.gtw[0]):
+        #         node_noncov = node.noncov.left + node.noncov.right
+        #         if node_noncov < self.table.record[-1]:
+        #             self.table.record.append(node_noncov)
+        #             self.get_placement(node)
+        #     return True
+        # else:
+        #     return False
 
     def check_link(self, node, i, j):
         """
@@ -354,16 +368,17 @@ class BST:
         """
         i, j = np.where(node.pi == 1)
         if len(i) == 0:
-            place1 = self.gtw[0]
-            cov1 = 0
+            left_sta_place = self.gtw[0]
+            left_sta_cov = 0
         else:
-            place1 = self.place[i[-1]]
-            cov1 = self.cov[j[-1]]
+            left_sta_place = self.place[i[-1]]
+            left_sta_cov = self.cov[j[-1]]
+
         # left noncoverage
         left_noncov = node.noncov.left + \
-                      self.noncov_inrange(place1,
+                      self.noncov_inrange(left_sta_place,
                                           self.place[p_ind],
-                                          cov1,
+                                          left_sta_cov,
                                           self.cov[s_ind])
         # right noncoverage
         unplaced_cov = [self.cov[i] for i in range(len(self.cov))
@@ -371,12 +386,18 @@ class BST:
 
         unbusy_place = [self.place[j] for j in range(len(self.place))
                         if (j not in i) and (j != p_ind)]
+        # TODO: remake right noncoverage estimate
+        # if len(unplaced_cov) > len(unbusy_place):
+        #     cov = list(self.cov)
+        #     cov.sort()
+        #     max_cov = cov[-1:-(len(unbusy_place)+1):-1]
+        #     unplaced_cov = [self.cov[i] for i in range(len(max_cov))
+        #                     if (i not in j) and (i != s_ind)]
+
         if len(unplaced_cov) > len(unbusy_place):
-            cov = list(self.cov)
+            cov = unplaced_cov
             cov.sort()
-            max_cov = cov[-1:-(len(unbusy_place)+1):-1]
-            unplaced_cov = [self.cov[i] for i in range(len(max_cov))
-                            if (i not in j) and (i != s_ind)]
+            unplaced_cov = cov[-1:-(len(unbusy_place) + 1):-1]
 
         right_noncov = self.noncov_inrange(self.place[p_ind],
                                            self.gtw[-1],
@@ -389,8 +410,65 @@ class BST:
 
         return left_noncov + right_noncov
 
-    def add_delay(self, j):
-        rho = self.arival_rate / self.departure_rate[j]
+    def solve_cost(self, p_ind, s_ind, node):
+        """
+        calculate the estimates of cost
+        :param p_ind: index of placement
+        :param s_ind: index of station
+        :param node: parent node
+        :return: Cost estimate
+        """
+        i, j = np.where(node.pi == 1)
+
+        unplaced_cost = [self.cost[i] for i in range(len(self.cost))
+                        if (i not in j) and (i != s_ind)]
+
+        unbusy_place = [self.place[j] for j in range(len(self.place))
+                        if (j not in i) and (j != p_ind)]
+
+        if len(unplaced_cost) > len(unbusy_place):
+            cost = unplaced_cost
+            cost.sort(reverse=True)
+            unplaced_cost = cost[-1:-(len(unbusy_place) + 1):-1]
+
+        return node.left.cost + sum(unplaced_cost)
+
+        # if len(i) == 0:
+        #     left_sta_place = self.gtw[0]
+        #     left_sta_cov = 0
+        # else:
+        #     left_sta_place = self.place[i[-1]]
+        #     left_sta_cov = self.cov[j[-1]]
+
+    def solve_delay(self, p_ind, s_ind, node):
+        """
+        calculate the estimates of cost
+        :param p_ind: index of placement
+        :param s_ind: index of station
+        :param node: parent node
+        :return: Delay estimate
+        """
+        i, j = np.where(node.pi == 1)
+
+        unplaced_departure_rate = [self.departure_rate[i]
+                                   for i in range(len(self.departure_rate))
+                                   if (i not in j) and (i != s_ind)]
+
+        unbusy_place = [self.place[j] for j in range(len(self.place))
+                        if (j not in i) and (j != p_ind)]
+
+        if len(unplaced_departure_rate) > len(unbusy_place):
+            departure_rate = unplaced_departure_rate
+            departure_rate.sort(reverse=True)
+            unplaced_departure_rate = departure_rate[-1:
+                                                     -(len(unbusy_place) + 1):
+                                                     -1]
+
+        return node.left.delay + sum([self.add_delay(i)
+                                     for i in unplaced_departure_rate])
+
+    def add_delay(self, departure_rate):
+        rho = self.arival_rate / departure_rate
         mean_system_size = rho / (1 - rho)
         return round(mean_system_size / self.arival_rate, 5)
 
@@ -411,12 +489,18 @@ class BST:
             self.nodes.append(key)
             node.left = Node(left_pi, key)
             node.left.noncov_estimate = self.noncoverage(i, j, node)
+
             node.left.cost = node.cost + self.cost[j]
-            node.left.delay = node.delay + self.add_delay(j)
+            node.left.cost_estimate = self.solve_cost(i, j, node)
+
+            node.left.delay = (node.delay +
+                               self.add_delay(self.departure_rate[j]))
+            node.left.delay_estimate = self.solve_delay(i, j, node)
+
             self.graph.add_edge(node.key, node.left.key)
             self.table.add(i, j, node.left.pi[i, j],
                            node.left.noncov_estimate, key)
-            # draw(self.graph)
+            draw(self.graph)
 
             # add right node
             key += 1
@@ -431,7 +515,7 @@ class BST:
             self.table.add(i, j, node.left.pi[i, j],
                            node.right.noncov_estimate, key)
 
-            # draw(self.graph)
+            draw(self.graph)
             self.unchecked_node.append(node.right)
 
             if (self.check_link(node, i, j) and
@@ -440,11 +524,11 @@ class BST:
             self.unchecked_node.pop()
             return [node.right, key]
         else:
-            if len(self.unchecked_node) != 0:
-                node = self.unchecked_node[-1]
-                self.unchecked_node.pop()
+            # if len(self.unchecked_node) != 0:
+            node = self.unchecked_node[-1]
+            self.unchecked_node.pop()
 
-        return [node, self.nodes[-1]]
+            return [node, self.nodes[-1]]
 
     def search(self):
         """

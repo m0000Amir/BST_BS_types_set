@@ -4,7 +4,7 @@ Solution table for Binary search tree
 from collections import deque
 
 
-class Table:
+class Schedule:
     """
     Solution table
     """
@@ -17,7 +17,7 @@ class Table:
         self.record = deque()
         self.print_record = list()
 
-    def add(self, place, station, pi, estimate, step):
+    def add(self, place, station, pi, estimate, step=0):
         """
 
         :param place: index of placement

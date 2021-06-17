@@ -1,0 +1,9 @@
+;1
+arrival_rate;0.2
+cost_limit;34
+delay_limit;2.5
+gateway;{'Precv': -69, 'Grecv': 3, 'Lrecv': 1}
+gateway_placement;[0, 40]
+placement;[10, 20, 30]
+sta;{'1': {'R': 16, 'r': 10, 'Ptr_link': 20, 'Gtr_link': 5, 'Precv_link': -69, 'Grecv_link': 5, 'Ltr': 1, 'Lrecv_link': 1, 'Ptr_coverage': 20, 'Gtr_coverage': 5, 'c': 12, 'mu': 5}, '2': {'R': 16, 'r': 9, 'Ptr_link': 19, 'Gtr_link': 5, 'Precv_link': -67, 'Grecv_link': 5, 'Ltr': 1, 'Lrecv_link': 1, 'Ptr_coverage': 19, 'Gtr_coverage': 5, 'c': 12, 'mu': 6}, '3': {'R': 15, 'r': 9, 'Ptr_link': 18, 'Gtr_link': 5, 'Precv_link': -69, 'Grecv_link': 5, 'Ltr': 1, 'Lrecv_link': 1, 'Ptr_coverage': 18, 'Gtr_coverage': 5, 'c': 12, 'mu': 5}, '4': {'R': 16, 'r': 9, 'Ptr_link': 19, 'Gtr_link': 5, 'Precv_link': -69, 'Grecv_link': 5, 'Ltr': 1, 'Lrecv_link': 1, 'Ptr_coverage': 19, 'Gtr_coverage': 5, 'c': 10, 'mu': 6}}
+user_device;{'Precv': -67, 'Grecv': 0, 'Lrecv': 0}
