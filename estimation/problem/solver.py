@@ -2,11 +2,11 @@
 call MatLAB engine from Python to src MILP problem
 """
 import os
-import itertools
 import time
 
-import matlab.engine
 import scipy.io
+from scipy.optimize import linprog
+import numpy as np
 
 
 def save_mfile(path, array, name):
@@ -24,7 +24,7 @@ def save_mfile(path, array, name):
 def solve_milp_problem(problem, eng, path='./estimation/matlab/matfiles/'):
     """
     call m-file with solver function of MIXED-INTEGER LINEAR PROGRAMMING PROBLEM
-    :param problem: object og problem. It includes objective function,
+    :param problem: object of problem. It includes objective function,
     number of integer variables, inequality matrix, linear inequality constraint
     vector, equality matrix, linear equality constraint vector, lower bounds
     vector, upper bounds vector,
@@ -42,7 +42,7 @@ def solve_milp_problem(problem, eng, path='./estimation/matlab/matfiles/'):
     lb = save_mfile(path, problem.get_lb, name='lb')
     ub = save_mfile(path, problem.get_ub, name='ub')
 
-    start_time = time.time()
+    # start_time = time.time()
 
     # eng = matlab.engine.start_matlab('-nojvm')
     # eng.cd(r'./estimation/matlab/', nargout=0)
@@ -58,45 +58,44 @@ def solve_milp_problem(problem, eng, path='./estimation/matlab/matfiles/'):
         move_bool = True
         # out_x = [round(i) for i in list(itertools.chain(*x))]
         estimate = -1 * fval
-    return estimate, move_bool
+    return estimate
 
 
-def solve_lp_problem(f, A, b, Aeq, beq, lb, ub, option='optimization',
-                     path='./estimation/matlab/matfiles/'):
+def solve_linprog_problem(problem):
     """
-    call m-file with solver function with LINEAR PROGRAMMING PROBLEM
-    :param path: it is path to save .m-file
-    :param f: numpy array of objective function
-    :param A: numpy array of inequality matrix
-    :param b: numpy array of linear inequality constraint vector
-    :param Aeq: numpy array of equality matrix
-    :param beq: numpy array of linear equality constraint vector
-    :param lb: numpy array of lower bounds vector
-    :param ub: numpy array of upper bounds vector
-    :param option: default - optimization problem (f->min) or feasible solution
-    (f==0)
-    :param path: path to m.-files
-    :return: solution of LP problem
+    Simplex Method solution of Linear Programming problem
+    :param problem: object of problem. It includes objective function,
+    inequality matrix, linear inequality constraint vector, lower bounds
+    vector, upper bounds vector, and etc.
+    :return: result
     """
+    obj_func = problem.get_f
+    ineq_array = problem.get_ineq
+    ineq_b = problem.get_b
+    lb = problem.get_lb
+    ub = problem.get_ub
 
-    f = save_mfile(path, f, name='f')
-    A = save_mfile(path, A, name='A')
-    b = save_mfile(path, b, name='b')
-    Aeq = save_mfile(path, Aeq, name='Aeq')
-    beq = save_mfile(path, beq, name='beq')
-    lb = save_mfile(path, lb, name='lb')
-    ub = save_mfile(path, ub, name='ub')
+    # start_time = time.time()
+
+    b_array = np.vstack([lb, ub])
+    minmax_bounds = tuple((b_array[0, i], b_array[1, i])
+                          for i in range(len(b_array[0])))
 
     start_time = time.time()
+    res = linprog(obj_func, A_ub=ineq_array, b_ub=ineq_b, bounds=minmax_bounds,
+                  method='simplex', callback=None,
+                  options={'disp': False})
 
-    eng = matlab.engine.start_matlab('-nojvm')
-    eng.cd(r'./estimation/matlab/', nargout=0)
+    # print('--- Scipy LinProg {} seconds ---'.format(time.time() - start_time))
 
-    print("--- MatLab Engine %s seconds ---" % (time.time() - start_time))
+    # if (exitflag == -2) or (fval == 0):
+    #     move_bool = False
+    #     estimate = 0
+    # else:
+    #     move_bool = True
+    #     # out_x = [round(i) for i in list(itertools.chain(*x))]
+    #     estimate = -1 * fval
+    # return estimate, move_bool
+    estimate = -1 * res.fun
 
-    [x, fval, exitflag, output] = eng.lp(f, A, b, Aeq, beq,
-                                         lb, ub, nargout=4)
-
-    out_x = [round(i) for i in list(itertools.chain(*x))]
-
-    return (fval, out_x)
+    return estimate

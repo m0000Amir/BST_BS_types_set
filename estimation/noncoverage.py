@@ -1,6 +1,7 @@
 from bab.bst import Node
 from estimation.problem.int_lin_prog import ILP
-from estimation.problem.solver import solve_milp_problem
+from estimation.problem.knapsack import KnapsackProblem
+from estimation.problem.solver import solve_milp_problem, solve_linprog_problem
 
 from typing import Tuple, Any
 
@@ -67,16 +68,24 @@ def get_noncoverage(p: int, s: int, node: Node,
     node.left_child.noncov.right = max((gtw[-1] - place[p]) - cov[s], 0)
     if (len(unbusy_sta_cov) is 0) or (len(unbusy_place) is 0):
         right_noncov_estimate = node.left_child.noncov.right
-        move_bool = True
     else:
         remaining_cost = cost_limit - node.cost - cost[s]
-        problem = ILP(unbusy_sta_cov, unbusy_sta_cost, remaining_cost,
-                      unbusy_place)
-        problem.prepare()
-
-        [right_cov_estimate, move_bool] = solve_milp_problem(problem, engine)
+        # TODO: change flag condition
+        flag = 'knapsack'
+        if flag =='knapsack':
+            problem = KnapsackProblem(unbusy_sta_cov, unbusy_sta_cost,
+                                      remaining_cost)
+            problem.prepare()
+        elif flag == 'ILP' or flag == 'LP':
+            problem = ILP(unbusy_sta_cov, unbusy_sta_cost, remaining_cost,
+                          unbusy_place)
+            problem.prepare()
+        if flag == 'knapsack' or flag == 'ILP':
+            right_cov_estimate = solve_milp_problem(problem, engine)
+        elif flag == 'LP':
+            right_cov_estimate = solve_linprog_problem(problem)
 
         right_noncov_estimate = noncov_btwn_sta(place[p], gtw[1], cov[s],
                                                 right_cov_estimate)
     novcov_estimate = left_noncov + right_noncov_estimate
-    return novcov_estimate, move_bool
+    return novcov_estimate

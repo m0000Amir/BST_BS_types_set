@@ -78,7 +78,8 @@ def solve_cost(node: Node, cost: float) -> float:
     return node.cost + cost
 
 
-def solve_delay(node: Node, arrival_rate: float, departure_rate: float) -> float:
+def solve_delay(node: Node, arrival_rate: float,
+                average_packet_size: float, throughput: float) -> float:
     """
     Colving node time delay.
 
@@ -91,17 +92,19 @@ def solve_delay(node: Node, arrival_rate: float, departure_rate: float) -> float
     incoming flows.
 
     """
+    departure_rate = throughput / average_packet_size
     # Amount of all placed station is
     _, j = np.where(node.left_child.pi == 1)
     placed_sta_amount = len(j)
     # By Burke's total arrival rate is
     total_arrival_rate = arrival_rate * placed_sta_amount
+
     rho = total_arrival_rate / departure_rate
     # rho must be less than 0.9 (rho < 1 theoretically)
     if rho <= 0.9:
         # By Little's law the average time delay at each station is
         mean_system_size = rho / (1 - rho)
-        mean_service_time = round(mean_system_size / arrival_rate, 5)
+        mean_service_time = round(mean_system_size / total_arrival_rate, 5)
         return node.delay + mean_service_time
     else:
         return float('inf')

@@ -1,79 +1,189 @@
 {
     "1": {
         "placement": [
-            10,
-            20,
-            30,
-            40
+            33,
+            41,
+            77,
+            81,
+            95,
+            120,
+            139,
+            156,
+            175,
+            186
         ],
         "gateway_placement": [
             0,
-            50
+            200
         ],
-        "cost_limit": 5,
-        "delay_limit": 2.5,
-        "arrival_rate": 0.2,
+        "gateway": {
+            "Precv": -69,
+            "Grecv": 3,
+            "Lrecv": 1
+        },
+        "user_device": {
+            "Precv": -67,
+            "Grecv": 0,
+            "Lrecv": 0
+        },
+        "cost_limit": 40,
+        "delay_limit": 0.5,
+        "average_packet_size": 3.2,
+        "arrival_rate": 20,
         "sta": {
             "1": {
-                "R": 10,
+                "R": 16,
                 "r": 10,
-                "c": 20,
-                "mu": 5
+                "Ptr_link": 20,
+                "Gtr_link": 5,
+                "Precv_link": -69,
+                "Grecv_link": 5,
+                "Ltr": 1,
+                "Lrecv_link": 1,
+                "Ptr_coverage": 20,
+                "Gtr_coverage": 5,
+                "c": 26,
+                "mu": 5,
+                "throughput": 433
             },
             "2": {
-                "R": 11,
-                "r": 10,
-                "c": 1,
-                "mu": 6
+                "R": 16,
+                "r": 9,
+                "Ptr_link": 19,
+                "Gtr_link": 5,
+                "Precv_link": -67,
+                "Grecv_link": 5,
+                "Ltr": 1,
+                "Lrecv_link": 1,
+                "Ptr_coverage": 19,
+                "Gtr_coverage": 5,
+                "c": 20,
+                "mu": 6,
+                "throughput": 433
             },
             "3": {
                 "R": 15,
                 "r": 9,
-                "c": 20,
-                "mu": 5
+                "Ptr_link": 18,
+                "Gtr_link": 5,
+                "Precv_link": -69,
+                "Grecv_link": 5,
+                "Ltr": 1,
+                "Lrecv_link": 1,
+                "Ptr_coverage": 18,
+                "Gtr_coverage": 5,
+                "c": 12,
+                "mu": 5,
+                "throughput": 433
+
             },
             "4": {
                 "R": 16,
                 "r": 9,
-                "c": 1,
-                "mu": 6
+                "Ptr_link": 19,
+                "Gtr_link": 5,
+                "Precv_link": -69,
+                "Grecv_link": 5,
+                "Ltr": 1,
+                "Lrecv_link": 1,
+                "Ptr_coverage": 19,
+                "Gtr_coverage": 5,
+                "c": 10,
+                "mu": 6,
+                "throughput": 433
+            },
+            "5": {
+                "R": 16,
+                "r": 9,
+                "Ptr_link": 19,
+                "Gtr_link": 5,
+                "Precv_link": -67,
+                "Grecv_link": 5,
+                "Ltr": 1,
+                "Lrecv_link": 1,
+                "Ptr_coverage": 19,
+                "Gtr_coverage": 5,
+                "c": 12,
+                "mu": 6,
+                "throughput": 433
+            },
+            "6": {
+                "R": 15,
+                "r": 9,
+                "Ptr_link": 18,
+                "Gtr_link": 5,
+                "Precv_link": -69,
+                "Grecv_link": 5,
+                "Ltr": 1,
+                "Lrecv_link": 1,
+                "Ptr_coverage": 18,
+                "Gtr_coverage": 5,
+                "c": 12,
+                "mu": 5,
+                "throughput": 433
+            },
+            "7": {
+                "R": 16,
+                "r": 9,
+                "Ptr_link": 19,
+                "Gtr_link": 5,
+                "Precv_link": -69,
+                "Grecv_link": 5,
+                "Ltr": 1,
+                "Lrecv_link": 1,
+                "Ptr_coverage": 19,
+                "Gtr_coverage": 5,
+                "c": 10,
+                "mu": 6,
+                "throughput": 433
+            },
+            "8": {
+                "R": 16,
+                "r": 9,
+                "Ptr_link": 19,
+                "Gtr_link": 5,
+                "Precv_link": -67,
+                "Grecv_link": 5,
+                "Ltr": 1,
+                "Lrecv_link": 1,
+                "Ptr_coverage": 19,
+                "Gtr_coverage": 5,
+                "c": 12,
+                "mu": 6,
+                "throughput": 433
+            },
+            "9": {
+                "R": 15,
+                "r": 9,
+                "Ptr_link": 18,
+                "Gtr_link": 5,
+                "Precv_link": -69,
+                "Grecv_link": 5,
+                "Ltr": 1,
+                "Lrecv_link": 1,
+                "Ptr_coverage": 18,
+                "Gtr_coverage": 5,
+                "c": 12,
+                "mu": 5,
+                "throughput": 433
+            },
+            "10": {
+                "R": 16,
+                "r": 9,
+                "Ptr_link": 19,
+                "Gtr_link": 5,
+                "Precv_link": -69,
+                "Grecv_link": 5,
+                "Ltr": 1,
+                "Lrecv_link": 1,
+                "Ptr_coverage": 19,
+                "Gtr_coverage": 5,
+                "c": 10,
+                "mu": 6,
+                "throughput": 433
             }
         }
     }
 }
-
-
-
-
-//{
-//    "1": {
-//        "placement": [
-//            20,
-//            30,
-//            40
-//        ],
-//        "gateway_placement": [
-//            0,
-//            50
-//        ],
-//        "cost_limit": 30,
-//        "delay_limit": 2.5,
-//        "arrival_rate": 0.2,
-//        "sta": {
-//            "1": {
-//                "R": 40,
-//                "r": 20,
-//                "c": 20,
-//                "mu": 5
-//            },
-//            "2": {
-//                "R": 20,
-//                "r": 5,
-//                "c": 1,
-//                "mu": 6
-//            }
-//        }
-//    }
-//}
 
 

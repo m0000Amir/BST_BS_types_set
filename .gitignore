@@ -1,0 +1,6 @@
+.vscode
+.venv
+.env
+venv
+env
+input_debug.json

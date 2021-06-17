@@ -8,11 +8,13 @@ from bab.schedule import Schedule
 from bab.evaluation import solve_noncoverage, solve_cost, solve_delay
 from connection.feasible_placement import check_link
 from bab.branch_and_bound import check_estimate_old_func
+from bs.sta_value import get_value
 
 
 def get(input_data, share=0.1):
     """ Getting solution"""
     arrival_rate = input_data.arrival_rate
+    average_packet_size = input_data.average_packet_size
     cost_limit = input_data.cost_limit
     delay_limit = input_data.delay_limit
     gtw = input_data.gateway_placement
@@ -21,13 +23,17 @@ def get(input_data, share=0.1):
     # cov = tuple(input_data.sta[i]['r'] for i in input_data.sta)
     # comm_dist = tuple(input_data.sta[i]['R'] for i in input_data.sta)
     cost = tuple(input_data.sta[i]['c'] for i in input_data.sta)
-    departure_rate = tuple(input_data.sta[i]['mu'] for i in input_data.sta)
+    # departure_rate = tuple(input_data.sta[i]['mu'] for i in input_data.sta)
+    throughput = tuple(input_data.sta[i]['throughput'] for i in input_data.sta)
+    comm_dist, comm_dist2gtw, cov = get_value(input_data.gateway,
+                                              input_data.user_device,
+                                              input_data.sta)
 
     deviation = share * (gtw[1] - gtw[0])
 
-    assert is_able_to_exist_solution(comm_dist, place, gtw), ('There is not '
-                                                              'solution for '
-                                                              'this case')
+    assert is_able_to_exist_solution(comm_dist, comm_dist2gtw, place, gtw), (
+        'There is not solution for this case')
+
     tree = Tree()
     statistics = Schedule()
 
@@ -47,7 +53,8 @@ def get(input_data, share=0.1):
                                                                   place, cov)
             parent.left_child.cost = solve_cost(parent, cost[j])
             parent.left_child.delay = solve_delay(parent, arrival_rate,
-                                                  departure_rate[j])
+                                                  average_packet_size,
+                                                  throughput[j])
             statistics.add(i, j, parent.left_child)
             # PLOT GRAPH
             # draw(tree.graph)
@@ -62,9 +69,10 @@ def get(input_data, share=0.1):
             # PLOT GRAPH
             # draw(tree.graph)
 
-            if (check_link(i, j, parent, place, comm_dist, gtw) and
-                check_estimate_old_func(parent.left_child, statistics, place, gtw,
-                                        cost_limit, delay_limit, deviation)):
+            if (check_link(i, j, parent, place, comm_dist, comm_dist2gtw, gtw)
+                    and check_estimate_old_func(parent.left_child, statistics,
+                                                place, gtw, cost_limit,
+                                                delay_limit, deviation)):
                 parent = parent.left_child
             else:
                 tree.unchecked_node.pop()

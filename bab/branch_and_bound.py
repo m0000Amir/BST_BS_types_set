@@ -51,33 +51,39 @@ def check_estimate(p: int, s: int, node: Node, statistics: Schedule,
                    deviation: float, eng) -> bool:
     """
     Getting new noncoverage record
+    :param p: index of placement
+    :param s: index of station
     :param node: node of binary tree
     :param statistics: record schedule
     :param place: coordinates of placements
     :param gtw: gateways coordinates
+    :param cov: stations coverage
+    :param cost: stations cost
     :param deviation: deviation from record
     :param delay_limit: problem delay limit
     :param cost_limit: problem cost limit
+    :param eng: MatLab engine
     :return: True if noncoverage_estiate is not more than obtained record,
     False - otherwise
     """
-    [node.left_child.noncov.estimate, move_bool] = get_noncoverage(p, s, node,
-                                                                   gtw, place,
-                                                                   cov, cost,
-                                                                   cost_limit,
-                                                                   eng)
+    node.left_child.noncov.estimate = get_noncoverage(p, s, node,
+                                                      gtw, place,
+                                                      cov, cost,
+                                                      cost_limit,
+                                                      eng)
     # if move_bool is False:
     #     return False
 
     statistics.add(p, s, node.left_child)
 
-    if (node.left_child.noncov.estimate < (statistics.record[-1]) and
+    if (node.left_child.noncov.estimate <= ((statistics.record[-1])
+                                            + deviation) and
             check_cost(node.left_child, cost_limit) and
             check_delay(node.left_child, delay_limit)):
         if is_able_link_btwn_gtw(node.left_child, gtw):
             node_noncov = (node.left_child.noncov.left +
                            node.left_child.noncov.right)
-            if ((node_noncov < statistics.record[-1]) and
+            if ((node_noncov <= statistics.record[-1] + deviation) and
                     node.left_child.cost <= statistics.cost[-1] and
                     node.left_child.delay <= statistics.delay[-1]):
                 statistics.record.append(node_noncov)
@@ -111,7 +117,7 @@ def check_estimate_old_func(node: Node, statistics: Schedule,
     :return: True if noncoverage_estiate is not more than obtained record,
     False - otherwise
     """
-    if (node.noncov.estimate <= (statistics.record[-1]) and
+    if (node.noncov.estimate < (statistics.record[-1]) and
             check_cost(node, cost_limit) and check_delay(node, delay_limit)):
         if is_able_link_btwn_gtw(node, gtw):
             node_noncov = node.noncov.left + node.noncov.right
