@@ -41,7 +41,8 @@ def get(input_data, share=0.1):
 
     tree.initiate(place, cov)
     statistics.add(float('inf'), float('inf'), tree.top)
-    statistics.record.append(gtw[-1])
+    # statistics.record.append(gtw[-1])
+    statistics.record[-1]['optimal'] = gtw[-1]
 
     engine = matlab.engine.start_matlab('-nojvm')
     engine.cd(r'./estimation/matlab/', nargout=0)

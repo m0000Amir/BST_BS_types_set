@@ -21,13 +21,23 @@ class Schedule:
         self.cost = list()
         self.delay = list()
         self.step = list()
-        self.record = list()
+        self.record = [{'optimal': None, 'subsequence': list()}]
+        self._record_type = None
         self.print_record = list()
 
     def __str__(self):
-        return colored("Record = {},  Cost = {},  Delay =  {},  node = {}".format(
-            self.noncoverage[-1], self.cost[-1], self.delay[-1], self.step[-1]),
+        return colored("{} = {},  Cost = {},  Delay =  {},  node = {}".format(
+            self._record_type, self.noncoverage[-1], self.cost[-1],
+            self.delay[-1], self.step[-1]),
             'magenta', attrs=['bold', 'blink'])
+
+    def append_record(self, optimal=None, feasible=None) -> None:
+        if optimal is not None:
+            self.record[-1]['optimal'] = optimal
+            self._record_type = "Optimal"
+        elif feasible is not None:
+            self.record[-1]['subsequence'].append(feasible)
+            self._record_type = '\tFeasible'
 
     def add(self, p, s, node):
         """
