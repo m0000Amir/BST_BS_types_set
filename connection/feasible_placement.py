@@ -110,17 +110,21 @@ def is_able_link_right(p: int, s: int, node: Node, place: Tuple[float],
     i, j = np.where(node.pi == 1)
     unplaced_sta_index = [i for i in range(comm_dist.shape[0]) if (i not in j)
                           and (i is not s)]
-    unplaced_comm_link = comm_dist[unplaced_sta_index, :]
-    ucd_j, = np.where(comm_dist[:, s] == unplaced_comm_link[:, s].max())
+    # unplaced_comm_link = comm_dist[unplaced_sta_index, :]
+    # ucd_j, = np.where(comm_dist[:, s] == unplaced_comm_link[:, s].max())
     current_place = place[p]
-    current_link = comm_dist[s, ucd_j[-1]]
-    placed_sta_comm_link = [comm_dist[i] for i in j] + [current_link]
+    # current_link = comm_dist[s, ucd_j[-1]]
+    # placed_sta_comm_link = [comm_dist[i] for i in j] + [current_link]
+    unplaced_comm_link = comm_dist[unplaced_sta_index, :]
+
 
     if ((current_place == place[-1]) or
-            (len(placed_sta_comm_link) == comm_dist.shape[0])):
+            (len(unplaced_comm_link) is 0)):
         right_place = gtw[-1]
         current_link = comm_dist2gtw[s]
     else:
+        ucd_j, = np.where(comm_dist[:, s] == unplaced_comm_link[:, s].max())
+        current_link = comm_dist[s, ucd_j[-1]]
         right_place = place[p + 1]
         # unplaced_sta_link = [comm_dist[i]
         #                      for i in range(len(comm_dist))
@@ -160,10 +164,12 @@ def is_able_link_unbusy_sta(p: int, s: int, node: Node, place: Tuple[float],
     unplaced_sta_index = [i for i in range(comm_dist.shape[0]) if (i not in j)
                           and (i is not s)]
     unplaced_comm_link = comm_dist[unplaced_sta_index, :]
-    ucd_j, = np.where(comm_dist[:, s] == unplaced_comm_link[:, s].max())
+    # ucd_j, = np.where(comm_dist[:, s] == unplaced_comm_link[:, s].max())
 
     if len(unplaced_comm_link) == 0:
         return True
+
+    ucd_j, = np.where(comm_dist[:, s] == unplaced_comm_link[:, s].max())
 
     if len(unplaced_comm_link) == 1:
         node.close = True

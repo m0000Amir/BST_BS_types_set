@@ -25,9 +25,10 @@ def get(input_data, share=0.1):
 
     # cov = tuple(input_data.sta[i]['r'] for i in input_data.sta)
     # comm_dist = tuple(input_data.sta[i]['R'] for i in input_data.sta)
-    cost = tuple(input_data.sta[i]['c'] for i in input_data.sta)
+    cost = tuple(input_data.sta[i]['c'] for i in range(len(input_data.sta)))
     # departure_rate = tuple(input_data.sta[i]['mu'] for i in input_data.sta)
-    throughput = tuple(input_data.sta[i]['throughput'] for i in input_data.sta)
+    throughput = tuple(input_data.sta[i]['throughput']
+                       for i in range(len(input_data.sta)))
     comm_dist, comm_dist2gtw, cov = get_value(input_data.gateway,
                                               input_data.user_device,
                                               input_data.sta)

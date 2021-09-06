@@ -59,20 +59,19 @@ class StaParameterSet:
     g_tr_link: list
     p_recv_link: list
     g_recv_link: list
-    l_tr: list
-    l_recv_link: list
-
-    p_tr_coverage: list
-    g_tr_coverage: list
+    l_link: list
+    l_coverage: list
+    p_recv_coverage: list
+    g_recv_coverage: list
 
 
 @dataclass()
 class UserDeviceParameterSet:
     """ This parameters is used to calculate
     coverage parameter between station and user device"""
-    p_ud_coverage: float
-    g_ud_coverage: float
-    l_ud_coverage: float
+    p_tr: float
+    g_tr: float
+    l_tr: float
 
 
 @dataclass()
@@ -97,7 +96,7 @@ class GetDistanceInput:
     l_recv: float
 
 
-def get_distance(lb_input, som: float = 10, f: float = 5580, k: float = -27.55):
+def get_distance(lb_input, som: float = 10, f: float = 2437, k: float = -27.55):
     """
     Calculate distance parameter (link distance or coverage) using by link
     budget equation.
@@ -116,19 +115,19 @@ def get_distance(lb_input, som: float = 10, f: float = 5580, k: float = -27.55):
 
 def get_value(gateway, user_device, sta):
     sta_param = StaParameterSet(
-        p_tr_link=list(sta[i]['Ptr_link'] for i in sta),
-        g_tr_link=list(sta[i]['Gtr_link'] for i in sta),
-        p_recv_link=list(sta[i]['Precv_link'] for i in sta),
-        g_recv_link=list(sta[i]['Grecv_link'] for i in sta),
-        l_tr=list(sta[i]['Ltr'] for i in sta),
-        l_recv_link=list(sta[i]['Lrecv_link'] for i in sta),
-        p_tr_coverage=list(sta[i]['Ptr_coverage'] for i in sta),
-        g_tr_coverage=list(sta[i]['Gtr_coverage'] for i in sta),
+        p_tr_link=list(sta[i]['Ptr_link'] for i in range(len(sta))),
+        g_tr_link=list(sta[i]['Gtr_link'] for i in range(len(sta))),
+        p_recv_link=list(sta[i]['Precv_link'] for i in range(len(sta))),
+        g_recv_link=list(sta[i]['Grecv_link'] for i in range(len(sta))),
+        l_link=list(sta[i]['L_link'] for i in range(len(sta))),
+        l_coverage=list(sta[i]['L_coverage'] for i in range(len(sta))),
+        p_recv_coverage=list(sta[i]['Precv_coverage'] for i in range(len(sta))),
+        g_recv_coverage=list(sta[i]['Grecv_coverage'] for i in range(len(sta))),
     )
     ud_param = UserDeviceParameterSet(
-        p_ud_coverage=user_device['Precv'],
-        g_ud_coverage=user_device['Grecv'],
-        l_ud_coverage=user_device['Lrecv'],
+        p_tr=user_device['Ptr'],
+        g_tr=user_device['Gtr'],
+        l_tr=user_device['Ltr'],
     )
     gtw_param = GatewayParameterSet(
         p_tr=gateway['Ptr'],
@@ -146,37 +145,38 @@ def get_value(gateway, user_device, sta):
     for s1, s2 in product(i, j):
         if s1 != s2:
             ld_input = GetDistanceInput(p_tr=sta_param.p_tr_link[s1],
-                                        l_tr=sta_param.l_tr[s1],
+                                        l_tr=sta_param.l_link[s1],
                                         g_tr=sta_param.g_tr_link[s1],
                                         p_recv=sta_param.p_recv_link[s2],
                                         g_recv=sta_param.g_recv_link[s2],
-                                        l_recv=sta_param.l_recv_link[s2])
-            link_distance[s1, s2] = get_distance(ld_input)
+                                        l_recv=sta_param.l_link[s2])
+            link_distance[s1, s2] = get_distance(ld_input, som=20)
     for s1 in i:
         ld2gtw_input = GetDistanceInput(p_tr=sta_param.p_tr_link[s1],
-                                        l_tr=sta_param.l_tr[s1],
+                                        l_tr=sta_param.l_link[s1],
                                         g_tr=sta_param.g_tr_link[s1],
                                         p_recv=gtw_param.p_recv,
                                         g_recv=gtw_param.g_recv,
                                         l_recv=gtw_param.l_recv)
-        link_distance2gtw[s1] = get_distance(ld2gtw_input)
+        link_distance2gtw[s1] = get_distance(ld2gtw_input, som=20)
     for s1 in i:
         gtw2ld_input = GetDistanceInput(p_tr=gtw_param.p_tr,
                                         g_tr=gtw_param.g_tr,
                                         l_tr=gtw_param.l_recv,
                                         p_recv=sta_param.p_recv_link[s1],
-                                        l_recv=sta_param.l_recv_link[s1],
+                                        l_recv=sta_param.l_link[s1],
                                         g_recv=sta_param.g_recv_link[s1],
                                         )
-        gtw2link_distance[s1] = get_distance(gtw2ld_input)
+        gtw2link_distance[s1] = get_distance(gtw2ld_input, som=20)
     for s1 in i:
-        coverage_input = GetDistanceInput(p_tr=sta_param.p_tr_link[s1],
-                                          l_tr=sta_param.l_tr[s1],
-                                          g_tr=sta_param.g_tr_link[s1],
-                                          p_recv=ud_param.p_ud_coverage,
-                                          g_recv=ud_param.g_ud_coverage,
-                                          l_recv=ud_param.l_ud_coverage)
-        coverage[s1] = get_distance(coverage_input)
+        coverage_input = GetDistanceInput(p_tr=ud_param.p_tr,
+                                          l_tr=ud_param.l_tr,
+                                          g_tr=ud_param.g_tr,
+
+                                          p_recv=sta_param.p_recv_coverage[s1],
+                                          l_recv=sta_param.l_coverage[s1],
+                                          g_recv=sta_param.g_recv_coverage[s1])
+        coverage[s1] = get_distance(coverage_input, som=14)
     print('coverage = {}'.format(coverage))
     print('link distance = {}'.format(link_distance))
     print('link distance 2 gateway = {}'.format(link_distance2gtw))
@@ -185,4 +185,24 @@ def get_value(gateway, user_device, sta):
 
 
 if __name__ == '__main__':
-    get_value()
+    gateway = {'Ptr': 20, 'Gtr': 5, 'Ltr': 1,
+               'Precv': -69, 'Grecv': 5, 'Lrecv': 1}
+
+    sta = [{'Ptr_link': 20, 'Gtr_link': 5, 'Precv_link': -69, 'Grecv_link': 5,
+            'L_link': 1, 'L_coverage': 1, 'Precv_coverage': -69,
+            'Grecv_coverage': 5, 'c': 20, 'mu': 5, 'throughput': 433},
+           {'Ptr_link': 19, 'Gtr_link': 5, 'Precv_link': -67, 'Grecv_link': 5,
+            'L_link': 1, 'L_coverage': 1, 'Precv_coverage': -67,
+            'Grecv_coverage': 5, 'c': 28, 'mu': 6, 'throughput': 433},
+           {'Ptr_link': 18, 'Gtr_link': 5, 'Precv_link': -69, 'Grecv_link': 5,
+            'L_link': 1, 'L_coverage': 1, 'Precv_coverage': -67,
+            'Grecv_coverage': 5, 'c': 25, 'mu': 5, 'throughput': 433},
+           {'Ptr_link': 19, 'Gtr_link': 5, 'Precv_link': -69, 'Grecv_link': 5,
+            'L_link': 1, 'L_coverage': 1, 'Precv_coverage': -69,
+            'Grecv_coverage': 6, 'c': 24, 'mu': 6, 'throughput': 433},
+           {'Ptr_link': 19, 'Gtr_link': 5, 'Precv_link': -67, 'Grecv_link': 5,
+            'L_link': 1, 'L_coverage': 1, 'Precv_coverage': -67,
+            'Grecv_coverage': 5, 'c': 21, 'mu': 6, 'throughput': 433}]
+
+    user_device = {'Ptr': 20, 'Gtr': 0, 'Ltr': 0}
+    get_value(gateway, user_device, sta)

@@ -27,7 +27,7 @@ class Problem:
         self.sta = dataset['sta']
 
 
-with open('input.json') as json_file:
+with open('input_new.json') as json_file:
     """
     JSON include input data
     """
@@ -35,9 +35,9 @@ with open('input.json') as json_file:
     pd_data = pd.DataFrame(input_dataset)
     pd_data.to_csv('input.csv', sep=';')
 
-    SHARE = 0.01
+    SHARE = 0.007
 
-    for i in input_dataset.keys():
+    for i in range(len(input_dataset)):
         input_data = Problem(input_dataset[i])
         start_time = time.time()
         print(colored('==========OLD ESTIMATE EMETHOD=============',

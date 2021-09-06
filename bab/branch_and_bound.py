@@ -102,13 +102,13 @@ def check_delay(node: Node, delay_limit: int) -> bool:
 #         return False
 
 
-def write_estimate(node_noncov: float,
-                   statistics: Schedule,
-                   deviation: float) -> None:
-    if node_noncov < statistics.record[-1]['optimal']:
-        statistics.append_record(optimal=node_noncov)
-    elif node_noncov <= statistics.record[-1]['optimal'] + deviation:
-        statistics.append_record(feasible=node_noncov)
+# def write_estimate(node_noncov: float,
+#                    statistics: Schedule,
+#                    deviation: float) -> None:
+#     if node_noncov < statistics.record[-1]['optimal']:
+#         statistics.append_record(optimal=node_noncov)
+#     elif node_noncov <= statistics.record[-1]['optimal'] + deviation:
+#         statistics.append_record(feasible=node_noncov)
 
 
 def check_estimate(p: int, s: int, node: Node, statistics: Schedule,
@@ -158,7 +158,14 @@ def check_estimate(p: int, s: int, node: Node, statistics: Schedule,
             node_noncov = (node.left_child.noncov.left +
                            node.left_child.noncov.right)
 
-            write_estimate(node_noncov, statistics, deviation)
+            # write_estimate(node_noncov, statistics, deviation)
+
+            if node_noncov < statistics.record[-1]['optimal']:
+                statistics.append_record(optimal=node_noncov)
+            elif node_noncov <= statistics.record[-1]['optimal'] + deviation:
+                statistics.append_record(feasible=node_noncov)
+            else:
+                return False
 
             print(statistics)
             i, j = np.where(node.left_child.pi == 1)

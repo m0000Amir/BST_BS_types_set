@@ -26,16 +26,23 @@ class Schedule:
         self.print_record = list()
 
     def __str__(self):
+        if self._record_type == "Optimal":
+            color = "magenta"
+        else:
+            color = "cyan"
+
         return colored("{} = {},  Cost = {},  Delay =  {},  node = {}".format(
             self._record_type, self.noncoverage[-1], self.cost[-1],
             self.delay[-1], self.step[-1]),
-            'magenta', attrs=['bold', 'blink'])
+            color, attrs=['bold', 'blink'])
 
     def append_record(self, optimal=None, feasible=None) -> None:
         if optimal is not None:
+            self.record.append({'optimal': None, 'subsequence': list()})
             self.record[-1]['optimal'] = optimal
             self._record_type = "Optimal"
         elif feasible is not None:
+            # self.record.append({'optimal': None, 'subsequence': list()})
             self.record[-1]['subsequence'].append(feasible)
             self._record_type = '\tFeasible'
 
