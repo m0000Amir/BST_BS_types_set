@@ -71,7 +71,7 @@ def get_noncoverage(p: int, s: int, node: Node,
     else:
         remaining_cost = cost_limit - node.cost - cost[s]
         # TODO: change flag condition
-        flag = 'knapsack'
+        flag = 'ILP'
         if flag =='knapsack':
             problem = KnapsackProblem(unbusy_sta_cov, unbusy_sta_cost,
                                       remaining_cost)

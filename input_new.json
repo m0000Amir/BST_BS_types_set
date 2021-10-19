@@ -23,18 +23,18 @@
             "Lrecv": 1
         },
         "user_device": {
-            "Ptr": 10,
-            "Gtr": 0,
+            "Ptr": 9,
+            "Gtr": 1,
             "Ltr": 0
         },
-        "cost_limit": 84,
-        "delay_limit": 100,
+        "cost_limit": 76,
+        "delay_limit": 0.001,
         "average_packet_size": 0.012,
         "arrival_rate": 1000,
         "sta": [
             {
                 "Ptr_link": 20,
-                "Gtr_link": 2,
+                "Gtr_link": 4,
                 "Precv_link": -77,
                 "Grecv_link": 4,
                 "L_link": 1,
@@ -47,7 +47,7 @@
             },
             {
                 "Ptr_link": 19,
-                "Gtr_link": 2,
+                "Gtr_link": 4,
                 "Precv_link": -77,
                 "Grecv_link": 5,
                 "L_link": 1,
@@ -60,7 +60,7 @@
             },
             {
                 "Ptr_link": 19,
-                "Gtr_link": 2,
+                "Gtr_link": 4,
                 "Precv_link": -77,
                 "Grecv_link": 5,
                 "L_link": 1,
@@ -73,7 +73,7 @@
             },
             {
                 "Ptr_link": 18,
-                "Gtr_link": 2,
+                "Gtr_link": 4,
                 "Precv_link": -77,
                 "Grecv_link": 5,
                 "L_link": 1,
@@ -86,7 +86,7 @@
             },
             {
                 "Ptr_link": 19,
-                "Gtr_link": 2,
+                "Gtr_link": 4,
                 "Precv_link": -77,
                 "Grecv_link": 5,
                 "L_link": 1,
@@ -99,7 +99,7 @@
             },
             {
                 "Ptr_link": 19,
-                "Gtr_link": 2,
+                "Gtr_link": 4,
                 "Precv_link": -77,
                 "Grecv_link": 5,
                 "L_link": 1,
@@ -112,7 +112,7 @@
             },
             {
                 "Ptr_link": 20,
-                "Gtr_link": 2,
+                "Gtr_link": 4,
                 "Precv_link": -77,
                 "Grecv_link": 5,
                 "L_link": 1,
@@ -125,7 +125,7 @@
             },
             {
                 "Ptr_link": 19,
-                "Gtr_link": 2,
+                "Gtr_link": 4,
                 "Precv_link": -77,
                 "Grecv_link": 5,
                 "L_link": 1,

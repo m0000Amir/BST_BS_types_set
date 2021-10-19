@@ -148,7 +148,7 @@ def get_value(gateway, user_device, sta):
                                         l_tr=sta_param.l_link[s1],
                                         g_tr=sta_param.g_tr_link[s1],
                                         p_recv=sta_param.p_recv_link[s2],
-                                        g_recv=sta_param.g_recv_link[s2],
+                                        g_recv=sta_param.g_tr_link[s2],
                                         l_recv=sta_param.l_link[s2])
             link_distance[s1, s2] = get_distance(ld_input, som=20)
     for s1 in i:
@@ -165,7 +165,7 @@ def get_value(gateway, user_device, sta):
                                         l_tr=gtw_param.l_recv,
                                         p_recv=sta_param.p_recv_link[s1],
                                         l_recv=sta_param.l_link[s1],
-                                        g_recv=sta_param.g_recv_link[s1],
+                                        g_recv=sta_param.g_tr_link[s1],
                                         )
         gtw2link_distance[s1] = get_distance(gtw2ld_input, som=20)
     for s1 in i:
@@ -185,24 +185,43 @@ def get_value(gateway, user_device, sta):
 
 
 if __name__ == '__main__':
-    gateway = {'Ptr': 20, 'Gtr': 5, 'Ltr': 1,
-               'Precv': -69, 'Grecv': 5, 'Lrecv': 1}
+    # gateway = {'Ptr': 20, 'Gtr': 5, 'Ltr': 1,
+    #            'Precv': -69, 'Grecv': 5, 'Lrecv': 1}
+    #
+    # sta = [{'Ptr_link': 20, 'Gtr_link': 5, 'Precv_link': -69, 'Grecv_link': 5,
+    #         'L_link': 1, 'L_coverage': 1, 'Precv_coverage': -69,
+    #         'Grecv_coverage': 5, 'c': 20, 'mu': 5, 'throughput': 433},
+    #        {'Ptr_link': 19, 'Gtr_link': 5, 'Precv_link': -67, 'Grecv_link': 5,
+    #         'L_link': 1, 'L_coverage': 1, 'Precv_coverage': -67,
+    #         'Grecv_coverage': 5, 'c': 28, 'mu': 6, 'throughput': 433},
+    #        {'Ptr_link': 18, 'Gtr_link': 5, 'Precv_link': -69, 'Grecv_link': 5,
+    #         'L_link': 1, 'L_coverage': 1, 'Precv_coverage': -67,
+    #         'Grecv_coverage': 5, 'c': 25, 'mu': 5, 'throughput': 433},
+    #        {'Ptr_link': 19, 'Gtr_link': 5, 'Precv_link': -69, 'Grecv_link': 5,
+    #         'L_link': 1, 'L_coverage': 1, 'Precv_coverage': -69,
+    #         'Grecv_coverage': 6, 'c': 24, 'mu': 6, 'throughput': 433},
+    #        {'Ptr_link': 19, 'Gtr_link': 5, 'Precv_link': -67, 'Grecv_link': 5,
+    #         'L_link': 1, 'L_coverage': 1, 'Precv_coverage': -67,
+    #         'Grecv_coverage': 5, 'c': 21, 'mu': 6, 'throughput': 433}]
+    #
+    # user_device = {'Ptr': 20, 'Gtr': 0, 'Ltr': 0}
+    # get_value(gateway, user_device, sta)
 
-    sta = [{'Ptr_link': 20, 'Gtr_link': 5, 'Precv_link': -69, 'Grecv_link': 5,
-            'L_link': 1, 'L_coverage': 1, 'Precv_coverage': -69,
-            'Grecv_coverage': 5, 'c': 20, 'mu': 5, 'throughput': 433},
-           {'Ptr_link': 19, 'Gtr_link': 5, 'Precv_link': -67, 'Grecv_link': 5,
-            'L_link': 1, 'L_coverage': 1, 'Precv_coverage': -67,
-            'Grecv_coverage': 5, 'c': 28, 'mu': 6, 'throughput': 433},
-           {'Ptr_link': 18, 'Gtr_link': 5, 'Precv_link': -69, 'Grecv_link': 5,
-            'L_link': 1, 'L_coverage': 1, 'Precv_coverage': -67,
-            'Grecv_coverage': 5, 'c': 25, 'mu': 5, 'throughput': 433},
-           {'Ptr_link': 19, 'Gtr_link': 5, 'Precv_link': -69, 'Grecv_link': 5,
-            'L_link': 1, 'L_coverage': 1, 'Precv_coverage': -69,
-            'Grecv_coverage': 6, 'c': 24, 'mu': 6, 'throughput': 433},
-           {'Ptr_link': 19, 'Gtr_link': 5, 'Precv_link': -67, 'Grecv_link': 5,
-            'L_link': 1, 'L_coverage': 1, 'Precv_coverage': -67,
-            'Grecv_coverage': 5, 'c': 21, 'mu': 6, 'throughput': 433}]
+    coverage_input = GetDistanceInput(p_tr=20,
+                                      l_tr=1,
+                                      g_tr=5,
 
-    user_device = {'Ptr': 20, 'Gtr': 0, 'Ltr': 0}
-    get_value(gateway, user_device, sta)
+                                      p_recv=-67,
+                                      l_recv=0,
+                                      g_recv=1)
+
+    coverage_input1 = GetDistanceInput(p_tr=9,
+                                       l_tr=0,
+                                       g_tr=1,
+
+                                       p_recv=-77,
+                                       l_recv=1,
+                                       g_recv=5)
+
+    print(get_distance(coverage_input, som=14))
+    print(get_distance(coverage_input1, som=14))
