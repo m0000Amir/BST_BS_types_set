@@ -1,4 +1,4 @@
-from bab.bst import Node
+from binary_search.tree import Node
 from estimation.problem.int_lin_prog import ILP
 from estimation.problem.knapsack import KnapsackProblem
 from estimation.problem.solver import solve_milp_problem, solve_linprog_problem
@@ -25,7 +25,7 @@ def noncov_btwn_sta(place1: float, place2: float,
 
 def get_noncoverage(p: int, s: int, node: Node,
                     gtw: Tuple[float], place: Tuple[Any],
-                    cov: Tuple[Any], cost: Tuple[Any],
+                    cov: np.ndarray, cost: Tuple[Any],
                     cost_limit: float, engine) -> Tuple[float, bool]:
     """
     Calculate estimates of noncoverage

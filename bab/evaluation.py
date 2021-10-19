@@ -4,7 +4,7 @@ CALCULATION OF EVALUATIONS
 - node cost;
 - node delay
 """
-from .bst import Node
+from binary_search.tree import Node
 from typing import Tuple, Any
 
 import numpy as np

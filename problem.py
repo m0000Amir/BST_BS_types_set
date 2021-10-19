@@ -5,14 +5,14 @@ import time
 import pandas as pd
 from termcolor import colored
 
-from solution import optimal_solution, search
+from problem import solution
 
 
 class Problem:
     """
     Input Data of Placement Problem
 
-    We have points of placements and gateways. Packets are described arival
+    We have points of placements and gateways. Packets are described arrival
     rate.
     """
     def __init__(self, dataset):
@@ -40,15 +40,7 @@ with open('input_new.json') as json_file:
     for i in range(len(input_dataset)):
         input_data = Problem(input_dataset[i])
         start_time = time.time()
-        print(colored('==========OLD ESTIMATE EMETHOD=============',
-                      'cyan', attrs=['bold']))
-        # output = optimal_solution.get(input_data, SHARE)
-        old_est = time.time()
-        print('--- OLD ESTIMATE EMETHOD {} seconds ---'.format(old_est -
-                                                               start_time))
-        print(colored('==========NEW ESTIMATE EMETHOD=============',
-                      'cyan', attrs=['bold']))
-        output = search.get(input_data, SHARE)
+        output = solution.get(input_data, SHARE)
         new_est = time.time()
-        print('--- OLD ESTIMATE EMETHOD {} seconds ---'.format(new_est -
-                                                               old_est))
+        print(colored(f'--- ESTIMATE TIME {new_est - start_time} seconds ---',
+                      'cyan', attrs=['bold']))

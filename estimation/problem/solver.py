@@ -30,7 +30,7 @@ def solve_milp_problem(problem, eng, path='./estimation/matlab/matfiles/'):
     vector, upper bounds vector,
     :param eng: MatLab engine
     :param path: path to m.-files
-    :return: solution of ILP problem
+    :return: problem of ILP problem
     """
 
     f = save_mfile(path, problem.get_f, name='f')
@@ -63,7 +63,7 @@ def solve_milp_problem(problem, eng, path='./estimation/matlab/matfiles/'):
 
 def solve_linprog_problem(problem):
     """
-    Simplex Method solution of Linear Programming problem
+    Simplex Method problem of Linear Programming problem
     :param problem: object of problem. It includes objective function,
     inequality matrix, linear inequality constraint vector, lower bounds
     vector, upper bounds vector, and etc.
