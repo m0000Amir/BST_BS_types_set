@@ -4,49 +4,61 @@ from branch_and_bound.estimation.problem.knapsack import KnapsackProblem
 from branch_and_bound.estimation.problem.solver import solve_ilp_problem
 from branch_and_bound.estimation.problem.solver import solve_lp_problem
 from network.performance_characteristics import noncoverage_between_station
+from binary_search.schedule import Schedule
+from network.connection_between_station import is_able_to_connect_gateways
+
 
 from typing import Tuple, Any
+from dataclasses import dataclass
+
 
 import numpy as np
 from matlab.engine import MatlabEngine
+from termcolor import colored
 
 
-def get_noncoverage_estimate(p: int, s: int, node: Node,
-                             gtw: Tuple[float], place: Tuple[Any],
-                             cov: np.ndarray, cost: Tuple[Any],
-                             cost_limit: float,
+def get_noncoverage_estimate(p: int,
+                             s: int,
+                             node: Node,
+                             data: dataclass,
                              engine: MatlabEngine,
                              flag: str = 'ILP') -> Tuple[float, bool]:
     """
     Calculate estimates of noncoverage
 
-    :param p: index of placement
-    :param s: index of station
-    :param node: parent node
-    :param gtw: gateways coordinates
-    :param place: placement coordinates
-    :param cov: stations coverage radius
-    :param cost: stations cost
-    :param cost_limit: given cost limit of problem
-    :param engine: MatLab engine
-    :param flag: MatLab engine
+    Parameters
+    ----------
+    p - index of placement
+    s - index of station
+    node - parent node
+    data - input data
+    engine - Matlab engine
+    flag - kind of problem of right noncoverage estimation:
+        - 'ILP' - integer linear programming model,
+        - 'knapsack' - knapsack problem,
+        - 'LP' - linear problem.
 
-    :return: Noncoverage estimate
+    Returns
+    -------
+        Noncoverage estimate
     """
+
     i, j = np.where(node.pi == 1)
 
-    vacant_stations_coverage = [cov[i] for i in range(len(cov))
+    vacant_stations_coverage = [data.coverage[i]
+                                for i in range(len(data.coverage))
                                 if (i not in j) and (i != s)]
-    vacant_stations_cost = [cost[i] for i in range(len(cov))
+    vacant_stations_cost = [data.cost[i] for i in range(len(data.coverage))
                             if (i not in j) and (i != s)]
 
-    vacant_placement_points = [place[j] for j in range(len(place))
+    vacant_placement_points = [data.placement_coordinate[j]
+                               for j in range(len(data.placement_coordinate))
                                if (j not in i) and (j != p)]
-    node.left_child.noncoverage.right = max((gtw[-1] - place[p]) - cov[s], 0)
-    if (len(vacant_stations_coverage) is 0) or (len(vacant_placement_points) is 0):
+
+    if len(vacant_stations_coverage) is 0 or len(vacant_placement_points) is 0:
         right_noncoverage_estimate = node.left_child.noncoverage.right
     else:
-        remaining_cost = cost_limit - node.cost - cost[s]
+        remaining_cost = data.cost_limit - node.cost - data.cost[s]
 
         if flag == 'knapsack':
             problem = KnapsackProblem(vacant_stations_coverage,
@@ -66,7 +78,67 @@ def get_noncoverage_estimate(p: int, s: int, node: Node,
             right_cov_estimate = solve_lp_problem(problem)
 
         right_noncoverage_estimate = noncoverage_between_station(
-            place[p], gtw[1], cov[s], right_cov_estimate)
+            data.placement_coordinate[p], data.gateway_coordinate[1],
+            data.coverage[s], right_cov_estimate)
+
     novcov_estimate = (node.left_child.noncoverage.left +
                        right_noncoverage_estimate)
+
     return novcov_estimate
+
+
+def check_estimate(p: int,
+                   s: int,
+                   node: Node,
+                   data: dataclass,
+                   statistics: Schedule,
+                   deviation: float,
+                   eng) -> bool:
+    """
+
+    Parameters
+    ----------
+    p - index of placement
+    s - index of station
+    node - node of binary tree
+    data - input data
+    statistics - record schedule
+    deviation - deviation from record
+    eng- MatLab engine
+
+    Returns
+    -------
+        True if noncoverage_estimate is not more than obtained record,
+        False - otherwise
+    """
+    node.left_child.noncoverage.estimate = get_noncoverage_estimate(
+        p, s, node, data, eng, flag='ILP')
+
+    statistics.add(p, s, node.left_child)
+
+    if node.left_child.noncoverage.estimate <= (
+            (statistics.record[-1]['optimal']) + deviation):
+
+        if is_able_to_connect_gateways(node.left_child,
+                                       data.gateway_coordinate):
+            node_noncoverage = (node.left_child.noncoverage.left +
+                                node.left_child.noncoverage.right)
+
+            if node_noncoverage < statistics.record[-1]['optimal']:
+                statistics.append_record(optimal=node_noncoverage)
+            elif node_noncoverage <= (statistics.record[-1]['optimal'] +
+                                      deviation):
+                statistics.append_record(feasible=node_noncoverage)
+            else:
+                return False
+
+            print(statistics)
+            i, j = np.where(node.left_child.pi == 1)
+            placed_sta = ['-'] * len(data.placement_coordinate)
+
+            for k in range(len(i)):
+                placed_sta[i[k]] = 'S' + str(j[k] + 1)
+            print(colored(placed_sta, 'magenta', 'on_green', attrs=['bold']))
+        return True
+    else:
+        return False

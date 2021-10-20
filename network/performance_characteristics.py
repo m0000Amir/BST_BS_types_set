@@ -9,7 +9,10 @@ Note:
     section and the total coverage of placed stations.
 """
 from binary_search.tree import Node
+
+
 from typing import Tuple, Any
+from dataclasses import dataclass
 
 import numpy as np
 
@@ -38,9 +41,7 @@ def noncoverage_between_station(place1: float, place2: float,
 def solve_noncoverage(p: int,
                       s: int,
                       node: Node,
-                      gtw: Tuple[float],
-                      place: Tuple[Any],
-                      cov: np.ndarray) -> Tuple[float, float]:
+                      data: dataclass) -> Tuple[float, float]:
     """
     Calculate the total noncoverage of all placed station in this node
 
@@ -49,76 +50,55 @@ def solve_noncoverage(p: int,
     p - index of placement
     s - index of station
     node - parent node
-    gtw - gateways coordinates
-    place - placement coordinates
-    cov - stations coverage
+    data - input data
 
     Returns
     -------
         The total noncoverage in node
-
     """
     i, j = np.where(node.pi == 1)
 
     if len(i) == 0:  # searching is just started
-        left_station_placement_point = gtw[0]
+        left_station_placement_point = data.gateway_coordinate[0]
         left_station_coverage = 0
     else:
-        left_station_placement_point = place[i[-1]]
-        left_station_coverage = cov[j[-1]]
+        left_station_placement_point = data.placement_coordinate[i[-1]]
+        left_station_coverage = data.coverage[j[-1]]
 
     # left noncoverage
     left_noncoverage = (node.noncoverage.left +
                         noncoverage_between_station(
                             left_station_placement_point,
-                            place[p],
+                            data.placement_coordinate[p],
                             left_station_coverage,
-                            cov[s]))
+                            data.coverage[s]))
 
     # right noncoverage
-    right_noncoverage = max((gtw[-1] - place[p]) - cov[s], 0)
+    distance_to_right_gateway = (data.gateway_coordinate[-1] -
+                                 data.placement_coordinate[p])
+    right_noncoverage = max(distance_to_right_gateway - data.coverage[s], 0)
 
-    # vacant_stations_coverage = [cov[i] for i in range(len(cov))
-    #                             if (i not in j) and (i != s)]
-    #
-    # vacant_placement_point = [place[j] for j in range(len(place))
-    #                           if (j not in i) and (j != p)]
-    #
-    # if len(vacant_stations_coverage) > len(vacant_placement_point):
-    #     _sort_cov = vacant_stations_coverage
-    #     _sort_cov.sort()
-    #     vacant_stations_coverage = _sort_cov[
-    #                                -1:-(len(vacant_placement_point) + 1):-1]
-    #
-    # right_noncoverage = noncoverage_between_station(
-    #     place[p],
-    #     gtw[-1],
-    #     cov[s],
-    #     sum(2 * vacant_stations_coverage))
-
-    # node noncoverage
-    # node.left_child.noncoverage.left = left_noncoverage
-    # node.left_child.noncoverage.right = max((gtw[-1] - place[p]) - cov[s], 0)
     return left_noncoverage, right_noncoverage
 
-def solve_cost(node: Node, cost: float) -> float:
+
+def solve_cost(s: int, node: Node, data: dataclass) -> float:
     """
     Calculate cost of all placed station in this node
 
     Parameters
     ----------
+    s - index of station
     node - node of binary search tree
-    cost - cost of placed station
+    data - input_data
 
     Returns
     -------
         The total cost in node
     """
-    return node.cost + cost
+    return node.cost + data.cost[s]
 
 
-def solve_delay(node: Node, arrival_rate: float,
-                average_packet_size: float, throughput: float) -> float:
+def solve_delay(s, node: Node, data: dataclass) -> float:
     """
     Solving end-end delay using stochastic queueing model.
 
@@ -132,22 +112,21 @@ def solve_delay(node: Node, arrival_rate: float,
 
     Parameters
     ----------
+    s - index of station
     node - parent node
-    arrival_rate - rate of incoming traffic
-    average_packet_size - packet size of traffic
-    throughput - throughput of node
+    data - input_data
 
     Returns
     -------
         End-to-end delay
     """
 
-    departure_rate = throughput / average_packet_size
+    departure_rate = data.throughput[s] / data.average_packet_size
     # Amount of all placed station is
     _, j = np.where(node.left_child.pi == 1)
     placed_sta_amount = len(j)
     # By Burke's total arrival rate is
-    total_arrival_rate = arrival_rate * placed_sta_amount
+    total_arrival_rate = data.arrival_rate * placed_sta_amount
 
     rho = total_arrival_rate / departure_rate
     # rho must be less than 0.9 (rho < 1 theoretically)
@@ -158,3 +137,28 @@ def solve_delay(node: Node, arrival_rate: float,
         return node.delay + mean_service_time
     else:
         return float('inf')
+
+
+def check_cost(node: Node, cost_limit: int) -> bool:
+    """
+    Checking cost estimate for getting new noncoverage record
+    :param node: left node of binary search tree
+    :param cost_limit: cost limit of the problem
+    :return: True if total cost of tree node is less than problem limit,
+    False - otherwise
+    """
+    return node.cost <= cost_limit
+
+
+def check_delay(node: Node, delay_limit: int) -> bool:
+    """
+    Checking delay estimate for getting new noncoverage record
+    :param node: left node of binary search tree
+    :param delay_limit: cost limit of the problem
+    :return: True if total cost of tree node is less than problem limit,
+    False - otherwise
+    """
+    if node.delay == float('inf'):
+        # It means that service utilization is more than 0.9 (rho > 1)
+        return False
+    return node.delay <= delay_limit
