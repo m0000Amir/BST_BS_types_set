@@ -25,6 +25,8 @@ class Problem:
         self.arrival_rate = dataset['arrival_rate']
         self.average_packet_size = dataset['average_packet_size']
         self.sta = dataset['sta']
+        self.relative_deviation = dataset['relative_deviation']
+        self.method = dataset['method']
 
 
 with open('input_new.json') as json_file:
@@ -35,13 +37,10 @@ with open('input_new.json') as json_file:
     pd_data = pd.DataFrame(input_dataset)
     pd_data.to_csv('input.csv', sep=';')
 
-    SHARE = 0.005
-    SHARE = None
-
     for i in range(len(input_dataset)):
         input_data = Problem(input_dataset[i])
         start_time = time.time()
-        output = get.run(input_data, SHARE)
+        output = get.run(input_data)
         new_est = time.time()
         print(colored(f'--- ESTIMATE TIME {new_est - start_time} seconds ---',
                       'cyan', attrs=['bold']))

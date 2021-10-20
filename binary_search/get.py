@@ -3,18 +3,21 @@ An optimal problem.
 Branch and Bound method using Binary Search Tree.
 """
 from network.connection_between_station import is_able_to_exist_solution
-from binary_search.tree import Tree
+from binary_search.tree import Tree, Node
 from binary_search.schedule import Schedule
 from network.performance_characteristics import solve_cost, solve_delay
 from network.performance_characteristics import solve_noncoverage
 from network.performance_characteristics import check_delay, check_cost
 from network.connection_between_station import check_station_connection
+from network.connection_between_station import is_able_to_connect_gateways
 from branch_and_bound.estimation.noncoverage import check_estimate
 from network.link_budget import get_station_parameters
 
 from dataclasses import dataclass
 
 import matlab.engine
+import numpy as np
+from termcolor import colored
 
 
 @dataclass()
@@ -33,7 +36,82 @@ class InputParameters:
     deviation = None
 
 
-def run(input_data, share=0.1):
+def better_than_record(node: Node,
+                       data: dataclass,
+                       statistics: Schedule) -> bool:
+    """
+    Checking obtained solution with having a record.
+
+    Parameter data include a given deviation.
+    If deviation is None than it is necessary to get optimal solution,
+    else it is necessary to get optimal and feasible solutions.
+
+    Parameters
+    ----------
+    node - current node
+    data - input data
+    statistics - record schedule
+
+    Returns
+    -------
+        True or False
+
+    """
+    if data.deviation is None:
+        "The method gives optimal solutions."
+        if (node.left_child.noncoverage.estimate <
+                statistics.record[-1]['optimal']):
+
+            if is_able_to_connect_gateways(node.left_child,
+                                           data.gateway_coordinate):
+                node_noncoverage = (node.left_child.noncoverage.left +
+                                    node.left_child.noncoverage.right)
+
+                if node_noncoverage < statistics.record[-1]['optimal']:
+                    statistics.append_record(optimal=node_noncoverage)
+                print(statistics)
+                print_placed_station(node, data)
+            return True
+    else:
+        """ 
+        The method gives the sequence of best decisions. Results consist of 
+        optimal solutions and feasible solutions.
+        """
+        if node.left_child.noncoverage.estimate <= (
+                statistics.record[-1]['optimal'] + data.deviation):
+
+            if is_able_to_connect_gateways(node.left_child,
+                                           data.gateway_coordinate):
+                node_noncoverage = (node.left_child.noncoverage.left +
+                                    node.left_child.noncoverage.right)
+
+                if node_noncoverage < statistics.record[-1]['optimal']:
+                    statistics.append_record(optimal=node_noncoverage)
+                else:
+                    statistics.append_record(feasible=node_noncoverage)
+                print(statistics)
+                print_placed_station(node, data)
+            return True
+
+
+def print_placed_station(node: Node, data: dataclass) -> None:
+    """
+    Print station placement
+    Parameters
+    ----------
+    node - current node
+    data - input data
+
+    """
+    i, j = np.where(node.left_child.pi == 1)
+    placed_sta = ['-'] * len(data.placement_coordinate)
+
+    for k in range(len(i)):
+        placed_sta[i[k]] = 'S' + str(j[k] + 1)
+    print(colored(placed_sta, 'magenta', 'on_green', attrs=['bold']))
+
+
+def run(input_data):
     """ Getting problem"""
     data = InputParameters()
 
@@ -54,12 +132,13 @@ def run(input_data, share=0.1):
                                                input_data.user_device,
                                                input_data.sta)
 
-    if share is None:
+    relative_deviation = input_data.relative_deviation
+
+    if relative_deviation is None:
         data.deviation = None
     else:
-        data.deviation = share * (data.gateway_coordinate[1] -
-                                  data.gateway_coordinate[0])
-
+        data.deviation = relative_deviation * (data.gateway_coordinate[1] -
+                                               data.gateway_coordinate[0])
 
     assert is_able_to_exist_solution(
         data.link_distance,
@@ -103,7 +182,7 @@ def run(input_data, share=0.1):
             if (check_station_connection(i, j, parent, data)
                     and check_cost(parent.left_child, data.cost_limit)
                     and check_delay(parent.left_child, data.delay_limit)):
-
+                pass
                 if check_estimate(i, j, parent, data, statistics, engine):
                     parent = parent.left_child
                 else:
