@@ -5,7 +5,7 @@ import time
 import pandas as pd
 from termcolor import colored
 
-from problem import solution
+from binary_search import get
 
 
 class Problem:
@@ -41,7 +41,7 @@ with open('input_new.json') as json_file:
     for i in range(len(input_dataset)):
         input_data = Problem(input_dataset[i])
         start_time = time.time()
-        output = solution.get(input_data, SHARE)
+        output = get.run(input_data, SHARE)
         new_est = time.time()
         print(colored(f'--- ESTIMATE TIME {new_est - start_time} seconds ---',
                       'cyan', attrs=['bold']))

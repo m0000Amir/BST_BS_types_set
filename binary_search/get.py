@@ -34,7 +34,7 @@ class InputParameters:
     deviation = None
 
 
-def get(input_data, share=0.1):
+def run(input_data, share=0.1):
 
     """ Getting problem"""
     data = InputParameters()
