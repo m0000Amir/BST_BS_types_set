@@ -92,7 +92,6 @@ def check_estimate(p: int,
                    node: Node,
                    data: dataclass,
                    statistics: Schedule,
-                   deviation: float,
                    eng) -> bool:
     """
 
@@ -103,7 +102,6 @@ def check_estimate(p: int,
     node - node of binary tree
     data - input data
     statistics - record schedule
-    deviation - deviation from record
     eng- MatLab engine
 
     Returns
@@ -117,7 +115,7 @@ def check_estimate(p: int,
     statistics.add(p, s, node.left_child)
 
     if node.left_child.noncoverage.estimate <= (
-            (statistics.record[-1]['optimal']) + deviation):
+            (statistics.record[-1]['optimal']) + data.deviation):
 
         if is_able_to_connect_gateways(node.left_child,
                                        data.gateway_coordinate):
@@ -127,7 +125,7 @@ def check_estimate(p: int,
             if node_noncoverage < statistics.record[-1]['optimal']:
                 statistics.append_record(optimal=node_noncoverage)
             elif node_noncoverage <= (statistics.record[-1]['optimal'] +
-                                      deviation):
+                                      data.deviation):
                 statistics.append_record(feasible=node_noncoverage)
             else:
                 return False

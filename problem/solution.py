@@ -46,7 +46,8 @@ def get(input_data, share=0.1):
     data.gateway_coordinate = input_data.gateway_placement
     data.placement_coordinate = input_data.placement
 
-    data.cost = tuple(input_data.sta[i]['c'] for i in range(len(input_data.sta)))
+    data.cost = tuple(input_data.sta[i]['c']
+                      for i in range(len(input_data.sta)))
     data.throughput = tuple(
         input_data.sta[i]['throughput'] for i in range(len(input_data.sta)))
     data.link_distance, \
@@ -64,28 +65,13 @@ def get(input_data, share=0.1):
         data.placement_coordinate,
         data.gateway_coordinate), 'There is not problem for this case'
 
-    arrival_rate = input_data.arrival_rate
-    average_packet_size = input_data.average_packet_size
-    cost_limit = input_data.cost_limit
-    delay_limit = input_data.delay_limit
-    gateway_coordinate = input_data.gateway_placement
-    placement_coordinate = input_data.placement
-
-    cost = tuple(input_data.sta[i]['c'] for i in range(len(input_data.sta)))
-    throughput = tuple(
-        input_data.sta[i]['throughput'] for i in range(len(input_data.sta)))
-    link_distance, link_distance2gateway, coverage = get_station_parameters(
-        input_data.gateway, input_data.user_device, input_data.sta)
-
-    deviation = share * (gateway_coordinate[1] - gateway_coordinate[0])
-
     # Starting Searching
     # Initialize Tree and Schedule
     tree = Tree()
-    tree.initiate(placement_coordinate, coverage)
+    tree.initiate(data.placement_coordinate, data.coverage)
 
     statistics = Schedule(tree.top)
-    statistics.record[-1]['optimal'] = gateway_coordinate[-1]
+    statistics.record[-1]['optimal'] = data.gateway_coordinate[-1]
 
     engine = matlab.engine.start_matlab('-nojvm')
     engine.cd(r'./branch_and_bound/estimation/matlab/', nargout=0)
@@ -116,8 +102,7 @@ def get(input_data, share=0.1):
                     and check_cost(parent.left_child, data.cost_limit)
                     and check_delay(parent.left_child, data.delay_limit)):
 
-                if check_estimate(i, j, parent, data, statistics,
-                                  deviation, engine):
+                if check_estimate(i, j, parent, data, statistics, engine):
                     parent = parent.left_child
                 else:
                     tree.unchecked_node.pop()
