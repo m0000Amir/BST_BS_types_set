@@ -5,10 +5,10 @@ Branch and Bound method using Binary Search Tree.
 from network.connection_between_station import is_able_to_exist_solution
 from binary_search.tree import Tree
 from binary_search.schedule import Schedule
-from bab.evaluation import solve_cost, solve_delay
+from network.performance_characteristics import solve_cost, solve_delay
 from network.connection_between_station import check_station_connection
 from bab.branch_and_bound import check_estimate
-from network.link_budget.station_parameters import get_station_parameters
+from network.link_budget import get_station_parameters
 
 
 import matlab.engine

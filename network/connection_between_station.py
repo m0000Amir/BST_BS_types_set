@@ -192,8 +192,14 @@ def is_able_to_connect_unbusy_station(p: int, s: int, node: Node, place: Tuple[f
     return False
 
 
-def check_station_connection(i: int, j: int, node: Node, place, comm_dist: np.ndarray,
-                             comm_dist2gtw: np.ndarray, gtw: Tuple[float]) -> bool:
+def check_station_connection(
+        i: int,
+        j: int,
+        node: Node,
+        place: np.array,
+        comm_dist: np.ndarray,
+        comm_dist2gtw: np.ndarray,
+        gtw: Tuple[float]) -> bool:
     """
     Check link conditions
     :param i: index of placement
