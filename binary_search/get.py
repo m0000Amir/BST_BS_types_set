@@ -14,7 +14,6 @@ from network.link_budget import get_station_parameters
 
 from dataclasses import dataclass
 
-
 import matlab.engine
 
 
@@ -35,7 +34,6 @@ class InputParameters:
 
 
 def run(input_data, share=0.1):
-
     """ Getting problem"""
     data = InputParameters()
 
@@ -51,13 +49,17 @@ def run(input_data, share=0.1):
     data.throughput = tuple(
         input_data.sta[i]['throughput'] for i in range(len(input_data.sta)))
     data.link_distance, \
-    data.link_distance2gateway, \
-    data.coverage = get_station_parameters(input_data.gateway,
-                                           input_data.user_device,
-                                           input_data.sta)
+        data.link_distance2gateway, \
+        data.coverage = get_station_parameters(input_data.gateway,
+                                               input_data.user_device,
+                                               input_data.sta)
 
-    data.deviation = share * (data.gateway_coordinate[1] -
-                              data.gateway_coordinate[0])
+    if share is None:
+        data.deviation = None
+    else:
+        data.deviation = share * (data.gateway_coordinate[1] -
+                                  data.gateway_coordinate[0])
+
 
     assert is_able_to_exist_solution(
         data.link_distance,
