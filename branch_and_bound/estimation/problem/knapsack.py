@@ -17,6 +17,7 @@ class KnapsackProblem:
         self._intcon = np.array([[i + 1 for i in range(self.get_column_num)]])
         self._lb = np.zeros([len(self.cov)])
         self._ub = np.ones([len(self.cov)])
+        self.prepare()
 
     def prepare(self) -> None:
         """Prepare data of problem"""

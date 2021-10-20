@@ -35,8 +35,12 @@ def noncoverage_between_station(place1: float, place2: float,
     return max([dist - cov, 0])
 
 
-def solve_noncoverage(p: int, s: int, node: Node, gtw: Tuple[float],
-                      place: Tuple[Any], cov: Tuple[Any]) -> float:
+def solve_noncoverage(p: int,
+                      s: int,
+                      node: Node,
+                      gtw: Tuple[float],
+                      place: Tuple[Any],
+                      cov: np.ndarray) -> Tuple[float, float]:
     """
     Calculate the total noncoverage of all placed station in this node
 
@@ -64,7 +68,7 @@ def solve_noncoverage(p: int, s: int, node: Node, gtw: Tuple[float],
         left_station_coverage = cov[j[-1]]
 
     # left noncoverage
-    left_noncoverage = (node.noncov.left +
+    left_noncoverage = (node.noncoverage.left +
                         noncoverage_between_station(
                             left_station_placement_point,
                             place[p],
@@ -72,29 +76,30 @@ def solve_noncoverage(p: int, s: int, node: Node, gtw: Tuple[float],
                             cov[s]))
 
     # right noncoverage
-    vacant_stations_coverage = [cov[i] for i in range(len(cov))
-                                if (i not in j) and (i != s)]
+    right_noncoverage = max((gtw[-1] - place[p]) - cov[s], 0)
 
-    vacant_placement_point = [place[j] for j in range(len(place))
-                              if (j not in i) and (j != p)]
-
-    if len(vacant_stations_coverage) > len(vacant_placement_point):
-        _sort_cov = vacant_stations_coverage
-        _sort_cov.sort()
-        vacant_stations_coverage = _sort_cov[
-                                   -1:-(len(vacant_placement_point) + 1):-1]
-
-    right_noncoverage = noncoverage_between_station(
-        place[p],
-        gtw[-1],
-        cov[s],
-        sum(2 * vacant_stations_coverage))
+    # vacant_stations_coverage = [cov[i] for i in range(len(cov))
+    #                             if (i not in j) and (i != s)]
+    #
+    # vacant_placement_point = [place[j] for j in range(len(place))
+    #                           if (j not in i) and (j != p)]
+    #
+    # if len(vacant_stations_coverage) > len(vacant_placement_point):
+    #     _sort_cov = vacant_stations_coverage
+    #     _sort_cov.sort()
+    #     vacant_stations_coverage = _sort_cov[
+    #                                -1:-(len(vacant_placement_point) + 1):-1]
+    #
+    # right_noncoverage = noncoverage_between_station(
+    #     place[p],
+    #     gtw[-1],
+    #     cov[s],
+    #     sum(2 * vacant_stations_coverage))
 
     # node noncoverage
-    node.left_child.noncov.left = left_noncoverage
-    node.left_child.noncov.right = max((gtw[-1] - place[p]) - cov[s], 0)
-    return left_noncoverage + right_noncoverage
-
+    # node.left_child.noncoverage.left = left_noncoverage
+    # node.left_child.noncoverage.right = max((gtw[-1] - place[p]) - cov[s], 0)
+    return left_noncoverage, right_noncoverage
 
 def solve_cost(node: Node, cost: float) -> float:
     """

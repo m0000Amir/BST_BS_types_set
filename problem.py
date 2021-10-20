@@ -36,6 +36,7 @@ with open('input_new.json') as json_file:
     pd_data.to_csv('input.csv', sep=';')
 
     SHARE = 0.005
+    SHARE = 0
 
     for i in range(len(input_dataset)):
         input_data = Problem(input_dataset[i])

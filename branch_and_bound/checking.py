@@ -1,17 +1,18 @@
 """
 Branch and Bound
 
-If node noncoverage estimate is not less or equal than a calculated record then
-node is closed. Also cost and delay is checked.
+If node noncoverage estimate is not less or equal than a calculated record
+then node is closed.
+
+Also, cost and delay are checked.
 
 """
 from typing import Tuple, Any
 
 from binary_search.tree import Node
 from network.connection_between_station import is_able_to_connect_gateways
-# from bab.evaluation import mean_service_time
 from binary_search.schedule import Schedule
-from estimation.noncoverage import get_noncoverage
+from branch_and_bound.estimation.noncoverage import get_noncoverage_estimate
 
 import numpy as np
 from termcolor import colored
@@ -66,35 +67,29 @@ def check_estimate(p: int, s: int, node: Node, statistics: Schedule,
 
     Returns
     -------
-        True if noncoverage_estiate is not more than obtained record,
+        True if noncoverage_estimate is not more than obtained record,
         False - otherwise
     """
 
-    node.left_child.noncov.estimate = get_noncoverage(p, s, node,
-                                                      gtw, place,
-                                                      cov, cost,
-                                                      cost_limit,
-                                                      eng)
+    node.left_child.noncoverage.estimate = get_noncoverage_estimate(
+        p, s, node, gtw, place, cov, cost, cost_limit, eng)
 
     statistics.add(p, s, node.left_child)
-    # if (node.left_child.noncov.estimate <= statistics.record[-1] and
-    #         check_cost(node.left_child, cost_limit) and
-    #         check_delay(node.left_child, delay_limit)):
-    #     TODO: make this condition! ALARM (deviation in the commented code)
-    if (node.left_child.noncov.estimate <= ((statistics.record[-1]['optimal'])
-                                            + deviation) and
+
+    if (node.left_child.noncoverage.estimate <= (
+            (statistics.record[-1]['optimal']) + deviation) and
             check_cost(node.left_child, cost_limit) and
             check_delay(node.left_child, delay_limit)):
+
         if is_able_to_connect_gateways(node.left_child, gtw):
-            node_noncov = (node.left_child.noncov.left +
-                           node.left_child.noncov.right)
+            node_noncoverage = (node.left_child.noncoverage.left +
+                           node.left_child.noncoverage.right)
 
-            # write_estimate(node_noncov, statistics, deviation)
-
-            if node_noncov < statistics.record[-1]['optimal']:
-                statistics.append_record(optimal=node_noncov)
-            elif node_noncov <= statistics.record[-1]['optimal'] + deviation:
-                statistics.append_record(feasible=node_noncov)
+            if node_noncoverage < statistics.record[-1]['optimal']:
+                statistics.append_record(optimal=node_noncoverage)
+            elif node_noncoverage <= (statistics.record[-1]['optimal'] +
+                                      deviation):
+                statistics.append_record(feasible=node_noncoverage)
             else:
                 return False
 
@@ -104,8 +99,7 @@ def check_estimate(p: int, s: int, node: Node, statistics: Schedule,
 
             for k in range(len(i)):
                 placed_sta[i[k]] = 'S' + str(j[k] + 1)
-            print(colored(placed_sta, 'magenta', 'on_green',
-                          attrs=['bold']))
+            print(colored(placed_sta, 'magenta', 'on_green', attrs=['bold']))
         return True
     else:
         return False

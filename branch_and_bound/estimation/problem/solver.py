@@ -21,7 +21,8 @@ def save_mfile(path, array, name):
     return os.path.abspath(path + name + '.mat')
 
 
-def solve_milp_problem(problem, eng, path='./estimation/matlab/matfiles/'):
+def solve_ilp_problem(problem, eng,
+                      path='./branch_and_bound/estimation/matlab/matfiles/'):
     """
     call m-file with solver function of MIXED-INTEGER LINEAR PROGRAMMING PROBLEM
     :param problem: object of problem. It includes objective function,
@@ -42,26 +43,16 @@ def solve_milp_problem(problem, eng, path='./estimation/matlab/matfiles/'):
     lb = save_mfile(path, problem.get_lb, name='lb')
     ub = save_mfile(path, problem.get_ub, name='ub')
 
-    # start_time = time.time()
-
-    # eng = matlab.engine.start_matlab('-nojvm')
-    # eng.cd(r'./estimation/matlab/', nargout=0)
-
-    # print("--- MatLab Engine %s seconds ---" % (time.time() - start_time))
-
     [x, fval, exitflag, output] = eng.milp(f, intcon, A, b, Aeq, beq,
                                            lb, ub, nargout=4)
     if (exitflag == -2) or (fval == 0):
-        move_bool = False
         estimate = 0
     else:
-        move_bool = True
-        # out_x = [round(i) for i in list(itertools.chain(*x))]
         estimate = -1 * fval
     return estimate
 
 
-def solve_linprog_problem(problem):
+def solve_lp_problem(problem):
     """
     Simplex Method problem of Linear Programming problem
     :param problem: object of problem. It includes objective function,
@@ -86,16 +77,6 @@ def solve_linprog_problem(problem):
                   method='simplex', callback=None,
                   options={'disp': False})
 
-    # print('--- Scipy LinProg {} seconds ---'.format(time.time() - start_time))
-
-    # if (exitflag == -2) or (fval == 0):
-    #     move_bool = False
-    #     estimate = 0
-    # else:
-    #     move_bool = True
-    #     # out_x = [round(i) for i in list(itertools.chain(*x))]
-    #     estimate = -1 * fval
-    # return estimate, move_bool
     estimate = -1 * res.fun
 
     return estimate

@@ -1,12 +1,13 @@
-from estimation.problem.knapsack import KnapsackProblem
+from branch_and_bound.estimation.problem.knapsack import KnapsackProblem
 
 import numpy as np
 
 
 class ILP(KnapsackProblem):
     def __init__(self, cov, cost, cost_limit, place=None):
-        super().__init__(cov, cost, cost_limit)
         self.num_place = len(place)
+        super().__init__(cov, cost, cost_limit)
+        self.prepare()
 
     def prepare(self):
         KnapsackProblem.prepare(self)

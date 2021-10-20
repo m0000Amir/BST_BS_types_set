@@ -6,8 +6,9 @@ from network.connection_between_station import is_able_to_exist_solution
 from binary_search.tree import Tree
 from binary_search.schedule import Schedule
 from network.performance_characteristics import solve_cost, solve_delay
+from network.performance_characteristics import solve_noncoverage
 from network.connection_between_station import check_station_connection
-from bab.branch_and_bound import check_estimate
+from branch_and_bound.checking import check_estimate
 from network.link_budget import get_station_parameters
 
 
@@ -44,7 +45,7 @@ def get(input_data, share=0.1):
     statistics.record[-1]['optimal'] = gateway_coordinate[-1]
 
     engine = matlab.engine.start_matlab('-nojvm')
-    engine.cd(r'./estimation/matlab/', nargout=0)
+    engine.cd(r'./branch_and_bound/estimation/matlab/', nargout=0)
 
     parent = tree.top
     while tree.is_possible_to_add_new_nodes(parent):
@@ -56,10 +57,15 @@ def get(input_data, share=0.1):
             parent.left_child.delay = solve_delay(parent, arrival_rate,
                                                   average_packet_size,
                                                   throughput[j])
+            left_noncoverage, right_noncoverage = solve_noncoverage(
+                i, j, parent, gateway_coordinate, placement_coordinate, coverage
+            )
+            parent.left_child.noncoverage.left = left_noncoverage
+            parent.left_child.noncoverage.right = right_noncoverage
 
             """add right node"""
             tree.add_right_node(i, j, parent)
-            parent.right_child.noncov = parent.noncov
+            parent.right_child.noncoverage = parent.noncoverage
             parent.right_child.cost = parent.cost
             parent.right_child.delay = parent.delay
 

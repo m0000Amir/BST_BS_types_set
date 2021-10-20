@@ -20,15 +20,12 @@ class Node:
         self.left_child = None
         self.right_child = None
 
-        self.noncoverage = None
-        self.link = None
-
         self.cost = None
         self.delay = None
         self.close = False  # default node is open
 
         self.link = ParameterRange()
-        self.noncov = ParameterRange()
+        self.noncoverage = ParameterRange()
 
 
 class Tree:
@@ -41,6 +38,15 @@ class Tree:
         self._key_counter = 0  # Stack of all nodes
 
     def initiate(self, place: Tuple[float], cov: np.ndarray) -> None:
+        """
+        Initiate of binary tree
+
+        Parameters
+        ----------
+        place - placement points
+        cov - coverage of stations
+
+        """
         """ get init estimate and node init node """
         pi = np.ones([len(place), len(cov)]) * np.inf
         key = self._key_counter
@@ -52,7 +58,8 @@ class Tree:
 
     def is_possible_to_add_new_nodes(self, node: Node) -> bool:
         """
-            Check the possibility of node adding
+        Check the possibility of node adding
+
         Parameters
         ----------
         node - current node
@@ -74,8 +81,8 @@ class Tree:
     @staticmethod
     def get_indices(pi: np.ndarray) -> List[float]:
         """
-        Get station j, that we can place to the placement i. Finding empty place
-        and empty station.
+        Get station j, that we can place to the placement i.
+        Finding empty place and empty station.
 
         Parameters
         ----------
@@ -101,11 +108,13 @@ class Tree:
                         sta_index = j
                         loop_break = True
                         break
+
         return [place_index, sta_index]
 
     def add_left_node(self, i: int, j: int, parent: Node) -> None:
         """
         Add new left child node of tree
+
         Parameters
         ----------
         i - index of placement point
@@ -130,6 +139,7 @@ class Tree:
     def add_right_node(self, i: int, j: int, parent: Node) -> None:
         """
         Add new right child node of tree
+
         Parameters
         ----------
         i - index of placement point
@@ -143,7 +153,7 @@ class Tree:
         right_pi = parent.pi.copy()
         right_pi[i, j] = 0
 
-        self._key_counter += 1 # Right Child Key is equal Left Child Key plus 1
+        self._key_counter += 1  # Right Child Key is equal to Left Child Key + 1
         right_child_key = self._key_counter
 
         parent.right_child = Node(right_pi, right_child_key)
