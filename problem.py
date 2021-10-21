@@ -6,30 +6,10 @@ import pandas as pd
 from termcolor import colored
 
 from binary_search import get
+from binary_search.get import Problem
 
 
-class Problem:
-    """
-    Input Data of Placement Problem
-
-    We have points of placements and gateways. Packets are described arrival
-    rate.
-    """
-    def __init__(self, dataset):
-        self.placement = tuple(dataset['placement'])
-        self.gateway_placement = tuple(dataset['gateway_placement'])
-        self.gateway = dataset['gateway']
-        self.user_device = dataset['user_device']
-        self.cost_limit = dataset['cost_limit']
-        self.delay_limit = dataset['delay_limit']
-        self.arrival_rate = dataset['arrival_rate']
-        self.average_packet_size = dataset['average_packet_size']
-        self.sta = dataset['sta']
-        self.relative_deviation = dataset['relative_deviation']
-        self.method = dataset['method']
-
-
-with open('input_new.json') as json_file:
+with open('input_brute_force.json') as json_file:
     """
     JSON include input data
     """

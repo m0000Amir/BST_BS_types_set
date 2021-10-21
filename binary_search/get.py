@@ -9,8 +9,8 @@ from network.performance_characteristics import solve_cost, solve_delay
 from network.performance_characteristics import solve_noncoverage
 from network.performance_characteristics import check_delay, check_cost
 from network.connection_between_station import check_station_connection
-from network.connection_between_station import is_able_to_connect_gateways
-from branch_and_bound.estimation.noncoverage import check_estimate
+from brute_force.noncoverage import check_noncoverage
+from branch_and_bound.noncoverage import check_estimation
 from network.link_budget import get_station_parameters
 
 from dataclasses import dataclass
@@ -18,6 +18,35 @@ from dataclasses import dataclass
 import matlab.engine
 import numpy as np
 from termcolor import colored
+
+
+# class Settings:
+#     def __init__(self):
+#         self.feasible_set_problem = False
+#         self.cost_problem = False
+#         self.delay_problem = False
+#         self.placing_all_station_problem = False
+
+
+class Problem:
+    """
+    Input Data of Placement Problem
+
+    We have points of placements and gateways. Packets are described arrival
+    rate.
+    """
+    def __init__(self, dataset):
+        self.placement = tuple(dataset['placement'])
+        self.gateway_placement = tuple(dataset['gateway_placement'])
+        self.gateway = dataset['gateway']
+        self.user_device = dataset['user_device']
+        self.cost_limit = dataset['cost_limit']
+        self.delay_limit = dataset['delay_limit']
+        self.arrival_rate = dataset['arrival_rate']
+        self.average_packet_size = dataset['average_packet_size']
+        self.sta = dataset['sta']
+        self.relative_deviation = dataset['relative_deviation']
+        self.method = dataset['method']
 
 
 @dataclass()
@@ -34,64 +63,7 @@ class InputParameters:
     link_distance2gateway = None
     coverage = None
     deviation = None
-
-
-def better_than_record(node: Node,
-                       data: dataclass,
-                       statistics: Schedule) -> bool:
-    """
-    Checking obtained solution with having a record.
-
-    Parameter data include a given deviation.
-    If deviation is None than it is necessary to get optimal solution,
-    else it is necessary to get optimal and feasible solutions.
-
-    Parameters
-    ----------
-    node - current node
-    data - input data
-    statistics - record schedule
-
-    Returns
-    -------
-        True or False
-
-    """
-    if data.deviation is None:
-        "The method gives optimal solutions."
-        if (node.left_child.noncoverage.estimate <
-                statistics.record[-1]['optimal']):
-
-            if is_able_to_connect_gateways(node.left_child,
-                                           data.gateway_coordinate):
-                node_noncoverage = (node.left_child.noncoverage.left +
-                                    node.left_child.noncoverage.right)
-
-                if node_noncoverage < statistics.record[-1]['optimal']:
-                    statistics.append_record(optimal=node_noncoverage)
-                print(statistics)
-                print_placed_station(node, data)
-            return True
-    else:
-        """ 
-        The method gives the sequence of best decisions. Results consist of 
-        optimal solutions and feasible solutions.
-        """
-        if node.left_child.noncoverage.estimate <= (
-                statistics.record[-1]['optimal'] + data.deviation):
-
-            if is_able_to_connect_gateways(node.left_child,
-                                           data.gateway_coordinate):
-                node_noncoverage = (node.left_child.noncoverage.left +
-                                    node.left_child.noncoverage.right)
-
-                if node_noncoverage < statistics.record[-1]['optimal']:
-                    statistics.append_record(optimal=node_noncoverage)
-                else:
-                    statistics.append_record(feasible=node_noncoverage)
-                print(statistics)
-                print_placed_station(node, data)
-            return True
+    method = None
 
 
 def print_placed_station(node: Node, data: dataclass) -> None:
@@ -111,8 +83,17 @@ def print_placed_station(node: Node, data: dataclass) -> None:
     print(colored(placed_sta, 'magenta', 'on_green', attrs=['bold']))
 
 
-def run(input_data):
-    """ Getting problem"""
+def prepare_problem_data(input_data: Problem) -> InputParameters:
+    """
+
+    Parameters
+    ----------
+    input_data input from JSON-file
+
+    Returns
+    -------
+        data: InputParameters
+    """
     data = InputParameters()
 
     data.arrival_rate = input_data.arrival_rate
@@ -139,6 +120,15 @@ def run(input_data):
     else:
         data.deviation = relative_deviation * (data.gateway_coordinate[1] -
                                                data.gateway_coordinate[0])
+    data.method = input_data.method
+
+    return data
+
+
+def run(input_data: Problem):
+    """ Getting problem"""
+
+    data = prepare_problem_data(input_data)
 
     assert is_able_to_exist_solution(
         data.link_distance,
@@ -146,16 +136,28 @@ def run(input_data):
         data.placement_coordinate,
         data.gateway_coordinate), 'There is not problem for this case'
 
-    # Starting Searching
-    # Initialize Tree and Schedule
+    if data.method == 0:
+        method = "Branch_and_bound"
+        matlab_engine = matlab.engine.start_matlab('-nojvm')
+        matlab_engine.cd(r'./branch_and_bound/estimation/matlab/', nargout=0)
+
+    elif data.method == -1:
+        method = "Brute_force"
+        matlab_engine = None
+    else:
+        raise ValueError('Error in choosing the problem-solution method. '
+                         'Variable 0 means the branch and bound method. '
+                         'Variable -1 means the brute force method.')
+
+    """ 
+    Starting Searching
+    Initialize Tree and Schedule
+    """
     tree = Tree()
     tree.initiate(data.placement_coordinate, data.coverage)
 
     statistics = Schedule(tree.top)
     statistics.record[-1]['optimal'] = data.gateway_coordinate[-1]
-
-    engine = matlab.engine.start_matlab('-nojvm')
-    engine.cd(r'./branch_and_bound/estimation/matlab/', nargout=0)
 
     parent = tree.top
     while tree.is_possible_to_add_new_nodes(parent):
@@ -182,12 +184,18 @@ def run(input_data):
             if (check_station_connection(i, j, parent, data)
                     and check_cost(parent.left_child, data.cost_limit)
                     and check_delay(parent.left_child, data.delay_limit)):
-                pass
-                if check_estimate(i, j, parent, data, statistics, engine):
-                    parent = parent.left_child
+                if method == "Branch_and_bound":
+                    "Branch and bound method"
+                    if check_estimation(i, j, parent, data, statistics,
+                                        matlab_engine):
+                        parent = parent.left_child
+                    else:
+                        tree.unchecked_node.pop()
+                        parent = parent.right_child
                 else:
-                    tree.unchecked_node.pop()
-                    parent = parent.right_child
+                    "Brute force method"
+                    check_noncoverage(i, j, parent, data, statistics)
+                    parent = parent.left_child
             else:
                 tree.unchecked_node.pop()
                 parent = parent.right_child

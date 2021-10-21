@@ -87,70 +87,72 @@ def get_noncoverage_estimation(p: int,
     return novcov_estimate
 
 
-# def better_than_record(node: Node,
-#                        data: dataclass,
-#                        statistics: Schedule) -> bool:
-#     """
-#     Checking obtained solution with having a record.
-#
-#     Parameter data include a given deviation.
-#     If deviation is None than it is necessary to get optimal solution,
-#     else it is necessary to get optimal and feasible solutions.
-#
-#     Parameters
-#     ----------
-#     node - current node
-#     data - input data
-#     statistics - record schedule
-#
-#     Returns
-#     -------
-#         True or False
-#
-#     """
-#     if data.deviation is None:
-#         "The method gives optimal solutions."
-#         if (node.left_child.noncoverage.estimate <
-#                 statistics.record[-1]['optimal']):
-#
-#             if is_able_to_connect_gateways(node.left_child,
-#                                            data.gateway_coordinate):
-#                 node_noncoverage = (node.left_child.noncoverage.left +
-#                                     node.left_child.noncoverage.right)
-#
-#                 if node_noncoverage < statistics.record[-1]['optimal']:
-#                     statistics.append_record(optimal=node_noncoverage)
-#                 print(statistics)
-#                 print_placed_station(node, data)
-#             return True
-#     else:
-#         """
-#         The method gives the sequence of best decisions. Results consist of
-#         optimal solutions and feasible solutions.
-#         """
-#         if node.left_child.noncoverage.estimate <= (
-#                 statistics.record[-1]['optimal'] + data.deviation):
-#
-#             if is_able_to_connect_gateways(node.left_child,
-#                                            data.gateway_coordinate):
-#                 node_noncoverage = (node.left_child.noncoverage.left +
-#                                     node.left_child.noncoverage.right)
-#
-#                 if node_noncoverage < statistics.record[-1]['optimal']:
-#                     statistics.append_record(optimal=node_noncoverage)
-#                 else:
-#                     statistics.append_record(feasible=node_noncoverage)
-#                 print(statistics)
-#                 print_placed_station(node, data)
-#             return True
+def better_than_record(node: Node,
+                       data: dataclass,
+                       statistics: Schedule) -> bool:
+    """
+    Checking obtained solution with having a record.
+
+    Parameter data include a given deviation.
+    If deviation is None than it is necessary to get optimal solution,
+    else it is necessary to get optimal and feasible solutions.
+
+    Parameters
+    ----------
+    node - current node
+    data - input data
+    statistics - record schedule
+
+    Returns
+    -------
+        True or False
+
+    """
+    from binary_search.get import print_placed_station
+
+    if data.deviation is None:
+        "The method gives optimal solutions."
+        if (node.left_child.noncoverage.estimate <
+                statistics.record[-1]['optimal']):
+
+            if is_able_to_connect_gateways(node.left_child,
+                                           data.gateway_coordinate):
+                node_noncoverage = (node.left_child.noncoverage.left +
+                                    node.left_child.noncoverage.right)
+
+                if node_noncoverage < statistics.record[-1]['optimal']:
+                    statistics.append_record(optimal=node_noncoverage)
+                    print(statistics)
+                    print_placed_station(node, data)
+            return True
+    else:
+        """ 
+        The method gives the sequence of best decisions. Results consist of 
+        optimal solutions and feasible solutions.
+        """
+        if node.left_child.noncoverage.estimate <= (
+                statistics.record[-1]['optimal'] + data.deviation):
+
+            if is_able_to_connect_gateways(node.left_child,
+                                           data.gateway_coordinate):
+                node_noncoverage = (node.left_child.noncoverage.left +
+                                    node.left_child.noncoverage.right)
+
+                if node_noncoverage < statistics.record[-1]['optimal']:
+                    statistics.append_record(optimal=node_noncoverage)
+                else:
+                    statistics.append_record(feasible=node_noncoverage)
+                print(statistics)
+                print_placed_station(node, data)
+            return True
 
 
-def check_estimate(p: int,
-                   s: int,
-                   node: Node,
-                   data: dataclass,
-                   statistics: Schedule,
-                   eng) -> bool:
+def check_estimation(p: int,
+                     s: int,
+                     node: Node,
+                     data: dataclass,
+                     statistics: Schedule,
+                     eng) -> bool:
     """
 
     Parameters
@@ -167,7 +169,9 @@ def check_estimate(p: int,
         True if noncoverage_estimate is not more than obtained record,
         False - otherwise
     """
-    from binary_search.get import better_than_record
+    if eng is None:
+        raise TypeError
+
     node.left_child.noncoverage.estimate = get_noncoverage_estimation(
         p, s, node, data, eng, flag='ILP')
     statistics.add(p, s, node.left_child)
