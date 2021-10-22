@@ -21,14 +21,6 @@ import numpy as np
 from termcolor import colored
 
 
-# class Settings:
-#     def __init__(self):
-#         self.feasible_set_problem = False
-#         self.cost_problem = False
-#         self.delay_problem = False
-#         self.placing_all_station_problem = False
-
-
 class Problem:
     """
     Input Data of Placement Problem
