@@ -108,15 +108,16 @@ def better_than_record(node: Node,
         True or False
 
     """
-    from binary_search.get import print_placed_station
+    from binary_search.get import print_placed_station, is_able_to_get_solution
 
     if data.deviation is None:
         "The method gives optimal solutions."
         if (node.left_child.noncoverage.estimate <
                 statistics.record[-1]['optimal']):
 
-            if is_able_to_connect_gateways(node.left_child,
-                                           data.gateway_coordinate):
+            # if is_able_to_connect_gateways(node.left_child,
+            #                                data.gateway_coordinate):
+            if is_able_to_get_solution(node, data):
                 node_noncoverage = (node.left_child.noncoverage.left +
                                     node.left_child.noncoverage.right)
 
@@ -133,8 +134,10 @@ def better_than_record(node: Node,
         if node.left_child.noncoverage.estimate <= (
                 statistics.record[-1]['optimal'] + data.deviation):
 
-            if is_able_to_connect_gateways(node.left_child,
-                                           data.gateway_coordinate):
+            # if is_able_to_connect_gateways(node.left_child,
+            #                                data.gateway_coordinate):
+
+            if is_able_to_get_solution(node, data):
                 node_noncoverage = (node.left_child.noncoverage.left +
                                     node.left_child.noncoverage.right)
 

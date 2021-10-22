@@ -8,7 +8,8 @@ from binary_search.schedule import Schedule
 from network.performance_characteristics import solve_cost, solve_delay
 from network.performance_characteristics import solve_noncoverage
 from network.performance_characteristics import check_delay, check_cost
-from network.connection_between_station import check_station_connection
+from network.connection_between_station import check_able_to_connect_station
+from network.connection_between_station import is_able_to_connect_gateways
 from brute_force.noncoverage import check_noncoverage
 from branch_and_bound.noncoverage import check_estimation
 from network.link_budget import get_station_parameters
@@ -47,6 +48,7 @@ class Problem:
         self.sta = dataset['sta']
         self.relative_deviation = dataset['relative_deviation']
         self.method = dataset['method']
+        self.place_all_station = dataset['place_all_station']
 
 
 @dataclass()
@@ -64,6 +66,7 @@ class InputParameters:
     coverage = None
     deviation = None
     method = None
+    place_all_station = None
 
 
 def print_placed_station(node: Node, data: dataclass) -> None:
@@ -121,8 +124,46 @@ def prepare_problem_data(input_data: Problem) -> InputParameters:
         data.deviation = relative_deviation * (data.gateway_coordinate[1] -
                                                data.gateway_coordinate[0])
     data.method = input_data.method
-
+    data.place_all_station = input_data.place_all_station
     return data
+
+
+def is_able_to_get_solution(node: Node, data: dataclass):
+    if data.place_all_station:
+        i, _ = np.where(node.left_child.pi == 1)
+        if len(i) == len(data.coverage):
+            return True
+    else:
+        if is_able_to_connect_gateways(node.left_child,
+                                       data.gateway_coordinate):
+            return True
+    return False
+
+
+def check_node(i: int, j: int, node: Node, data: dataclass) -> bool:
+    """
+
+    Parameters
+    ----------
+    i - index of placement
+    j - index of station
+    node - current node
+    data - input data
+
+    Returns
+    -------
+        True or False
+    """
+    if data.place_all_station:
+        if check_able_to_connect_station(i, j, node, data):
+            return True
+    else:
+        if (check_able_to_connect_station(i, j, node, data)
+                and check_cost(node.left_child, data.cost_limit)
+                and check_delay(node.left_child, data.delay_limit)):
+            return True
+
+    return False
 
 
 def run(input_data: Problem):
@@ -148,6 +189,8 @@ def run(input_data: Problem):
         raise ValueError('Error in choosing the problem-solution method. '
                          'Variable 0 means the branch and bound method. '
                          'Variable -1 means the brute force method.')
+
+    print(f"\n {method} method \n")
 
     """ 
     Starting Searching
@@ -180,10 +223,8 @@ def run(input_data: Problem):
 
             # PLOT GRAPH
             # draw(tree.graph)
+            if check_node(i, j, parent, data):
 
-            if (check_station_connection(i, j, parent, data)
-                    and check_cost(parent.left_child, data.cost_limit)
-                    and check_delay(parent.left_child, data.delay_limit)):
                 if method == "Branch_and_bound":
                     "Branch and bound method"
                     if check_estimation(i, j, parent, data, statistics,

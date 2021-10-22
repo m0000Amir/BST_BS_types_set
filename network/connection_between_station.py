@@ -204,8 +204,8 @@ def is_able_to_connect_vacant_station(p: int, s: int, node: Node,
     return False
 
 
-def check_station_connection(i: int, j: int, node: Node,
-                             data: dataclass) -> bool:
+def check_able_to_connect_station(i: int, j: int, node: Node,
+                                  data: dataclass) -> bool:
     """
     Check link conditions
 
