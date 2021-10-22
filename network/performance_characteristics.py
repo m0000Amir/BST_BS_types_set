@@ -93,7 +93,7 @@ def solve_cost(s: int, node: Node, data: dataclass) -> float:
 
     Returns
     -------
-        The total cost in node
+    The total cost in node
     """
     return node.cost + data.cost[s]
 
