@@ -38,9 +38,7 @@ class Problem:
         self.arrival_rate = dataset['arrival_rate']
         self.average_packet_size = dataset['average_packet_size']
         self.sta = dataset['sta']
-        self.relative_deviation = dataset['relative_deviation']
-        self.method = dataset['method']
-        self.place_all_station = dataset['place_all_station']
+        self.frequency = dataset['frequency']
 
 
 @dataclass()
@@ -53,6 +51,7 @@ class InputParameters:
     placement_coordinate = None
     cost = None
     throughput = None
+    frequency = None
     link_distance = None
     link_distance2gateway = None
     coverage = None
@@ -78,12 +77,13 @@ def print_placed_station(node: Node, data: dataclass) -> None:
     print(colored(placed_sta, 'magenta', 'on_green', attrs=['bold']))
 
 
-def prepare_problem_data(input_data: Problem) -> InputParameters:
+def prepare_problem_data(input_data: Problem, config: dict) -> InputParameters:
     """
 
     Parameters
     ----------
-    input_data input from JSON-file
+    input_data -  input from JSON-file
+    config - configuration parameters from JSON-file
 
     Returns
     -------
@@ -102,21 +102,23 @@ def prepare_problem_data(input_data: Problem) -> InputParameters:
                       for i in range(len(input_data.sta)))
     data.throughput = tuple(
         input_data.sta[i]['throughput'] for i in range(len(input_data.sta)))
+    data.frequency = input_data.frequency
     data.link_distance, \
         data.link_distance2gateway, \
         data.coverage = get_station_parameters(input_data.gateway,
                                                input_data.user_device,
-                                               input_data.sta)
+                                               input_data.sta,
+                                               data.frequency)
 
-    relative_deviation = input_data.relative_deviation
+    relative_deviation = config["relative_deviation"]
 
     if relative_deviation is None:
         data.deviation = None
     else:
         data.deviation = relative_deviation * (data.gateway_coordinate[1] -
                                                data.gateway_coordinate[0])
-    data.method = input_data.method
-    data.place_all_station = input_data.place_all_station
+    data.method = config["method"]
+    data.place_all_station = config["place_all_station"]
     return data
 
 
@@ -158,10 +160,10 @@ def check_node(i: int, j: int, node: Node, data: dataclass) -> bool:
     return False
 
 
-def run(input_data: Problem):
+def run(input_data: Problem, config: dict) -> None:
     """ Getting problem"""
 
-    data = prepare_problem_data(input_data)
+    data = prepare_problem_data(input_data, config)
 
     assert is_able_to_exist_solution(
         data.link_distance,

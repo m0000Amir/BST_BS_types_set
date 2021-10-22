@@ -60,7 +60,6 @@ class StaParameterSet:
     p_tr_link: list
     g_tr_link: list
     p_recv_link: list
-    g_recv_link: list
     l_link: list
     l_coverage: list
     p_recv_coverage: list
@@ -126,13 +125,13 @@ def get_distance(lb_input: GetDistanceInput,
 def get_station_parameters(
         gateway: dict,
         user_device: dict,
-        sta: list) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+        sta: list,
+        f: float) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
 
     sta_param = StaParameterSet(
         p_tr_link=list(sta[i]['Ptr_link'] for i in range(len(sta))),
         g_tr_link=list(sta[i]['Gtr_link'] for i in range(len(sta))),
         p_recv_link=list(sta[i]['Precv_link'] for i in range(len(sta))),
-        g_recv_link=list(sta[i]['Grecv_link'] for i in range(len(sta))),
         l_link=list(sta[i]['L_link'] for i in range(len(sta))),
         l_coverage=list(sta[i]['L_coverage'] for i in range(len(sta))),
         p_recv_coverage=list(sta[i]['Precv_coverage'] for i in range(len(sta))),
@@ -164,7 +163,7 @@ def get_station_parameters(
                                         p_recv=sta_param.p_recv_link[s2],
                                         g_recv=sta_param.g_tr_link[s2],
                                         l_recv=sta_param.l_link[s2])
-            link_distance2sta[s1, s2] = get_distance(ld_input, som=20)
+            link_distance2sta[s1, s2] = get_distance(ld_input, som=20, f=f)
     for s1 in i:
         ld2gtw_input = GetDistanceInput(p_tr=sta_param.p_tr_link[s1],
                                         l_tr=sta_param.l_link[s1],
@@ -172,7 +171,7 @@ def get_station_parameters(
                                         p_recv=gtw_param.p_recv,
                                         g_recv=gtw_param.g_recv,
                                         l_recv=gtw_param.l_recv)
-        link_distance2gateway[s1] = get_distance(ld2gtw_input, som=20)
+        link_distance2gateway[s1] = get_distance(ld2gtw_input, som=20, f=f)
     for s1 in i:
         gtw2ld_input = GetDistanceInput(p_tr=gtw_param.p_tr,
                                         g_tr=gtw_param.g_tr,
@@ -181,7 +180,7 @@ def get_station_parameters(
                                         l_recv=sta_param.l_link[s1],
                                         g_recv=sta_param.g_tr_link[s1],
                                         )
-        gtw2link_distance[s1] = get_distance(gtw2ld_input, som=20)
+        gtw2link_distance[s1] = get_distance(gtw2ld_input, som=20, f=f)
     for s1 in i:
         coverage_input = GetDistanceInput(p_tr=ud_param.p_tr,
                                           l_tr=ud_param.l_tr,
@@ -190,7 +189,7 @@ def get_station_parameters(
                                           p_recv=sta_param.p_recv_coverage[s1],
                                           l_recv=sta_param.l_coverage[s1],
                                           g_recv=sta_param.g_recv_coverage[s1])
-        coverage[s1] = get_distance(coverage_input, som=14)
+        coverage[s1] = get_distance(coverage_input, som=14, f=f)
     print('coverage = {}'.format(coverage))
     print('link distance = {}'.format(link_distance2sta))
     print('link distance 2 gateway = {}'.format(link_distance2gateway))
@@ -200,17 +199,15 @@ def get_station_parameters(
 
 if __name__ == '__main__':
     coverage_input1 = GetDistanceInput(p_tr=20,
-                                      l_tr=1,
-                                      g_tr=5,
-
-                                      p_recv=-67,
-                                      l_recv=0,
-                                      g_recv=1)
+                                       l_tr=1,
+                                       g_tr=5,
+                                       p_recv=-67,
+                                       l_recv=0,
+                                       g_recv=1)
 
     coverage_input2 = GetDistanceInput(p_tr=9,
                                        l_tr=0,
                                        g_tr=1,
-
                                        p_recv=-77,
                                        l_recv=1,
                                        g_recv=5)
