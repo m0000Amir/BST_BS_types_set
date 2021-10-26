@@ -38,6 +38,13 @@ def check_noncoverage(p: int,
         node_noncoverage = (node.left_child.noncoverage.left +
                             node.left_child.noncoverage.right)
 
+        # if node_noncoverage < statistics.record[-1]['optimal']:
+        #     statistics.append_record(optimal=node_noncoverage)
+        #     print(statistics)
+        #     print_placed_station(node, data)
+        # else:
+        #     statistics.append_record(feasible=node_noncoverage)
+        # statistics.add(p, s, node.left_child)
         if node_noncoverage < statistics.record[-1]['optimal']:
             statistics.append_record(optimal=node_noncoverage)
             statistics.add(p, s, node.left_child)
@@ -45,3 +52,4 @@ def check_noncoverage(p: int,
             print_placed_station(node, data)
 
         statistics.add(p, s, node.left_child)
+

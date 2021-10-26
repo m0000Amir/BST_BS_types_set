@@ -13,6 +13,7 @@ from network.connection_between_station import is_able_to_connect_gateways
 from brute_force.noncoverage import check_noncoverage
 from branch_and_bound.noncoverage import check_estimation
 from network.link_budget import get_station_parameters
+from drawing.figure import draw
 
 from dataclasses import dataclass
 
@@ -173,8 +174,12 @@ def run(input_data: Problem, config: dict) -> None:
 
     if data.method == 0:
         method = "Branch_and_bound"
-        matlab_engine = matlab.engine.start_matlab('-nojvm')
-        matlab_engine.cd(r'./branch_and_bound/estimation/matlab/', nargout=0)
+        if not data.place_all_station:
+            matlab_engine = matlab.engine.start_matlab('-nojvm')
+            matlab_engine.cd(r'./branch_and_bound/estimation/matlab/',
+                             nargout=0)
+        else:
+            matlab_engine = None
 
     elif data.method == -1:
         method = "Brute_force"
@@ -237,5 +242,5 @@ def run(input_data: Problem, config: dict) -> None:
         else:
             parent = tree.unchecked_node[-1]
             tree.unchecked_node.pop()
-        # draw(tree.graph)
+    # draw(tree.graph)
     print('Total number of nodes is {}'.format(tree.node_keys[-1]))

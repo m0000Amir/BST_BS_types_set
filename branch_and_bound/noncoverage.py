@@ -172,11 +172,31 @@ def check_estimation(p: int,
         True if noncoverage_estimate is not more than obtained record,
         False - otherwise
     """
-    if eng is None:
+    if not data.place_all_station and eng is None:
         raise TypeError
 
-    node.left_child.noncoverage.estimate = get_noncoverage_estimation(
-        p, s, node, data, eng, flag='ILP')
+    if data.place_all_station:
+        # TODO: rewrite in function
+        i, j = np.where(node.pi == 1)
+
+        vacant_stations_coverage = [data.coverage[i]
+                                    for i in range(len(data.coverage))
+                                    if (i not in j) and (i != s)]
+        vacant_placement_points = [data.placement_coordinate[j]
+                                   for j in
+                                   range(len(data.placement_coordinate))
+                                   if (j not in i) and (j != p)]
+
+        right_noncoverage_estimate = noncoverage_between_station(
+            data.placement_coordinate[p], data.gateway_coordinate[-1],
+            data.coverage[s], sum(2*vacant_stations_coverage))
+        novcov_estimate = (node.left_child.noncoverage.left +
+                           right_noncoverage_estimate)
+        node.left_child.noncoverage.estimate = novcov_estimate
+
+    else:
+        node.left_child.noncoverage.estimate = get_noncoverage_estimation(
+            p, s, node, data, eng, flag='ILP')
     statistics.add(p, s, node.left_child)
 
     return better_than_record(node, data, statistics)
