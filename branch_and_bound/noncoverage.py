@@ -143,10 +143,13 @@ def better_than_record(node: Node,
 
                 if node_noncoverage < statistics.record[-1]['optimal']:
                     statistics.append_record(optimal=node_noncoverage)
-                else:
+                    print(statistics)
+                    print_placed_station(node, data)
+                elif node_noncoverage <= (statistics.record[-1]['optimal'] +
+                                          data.deviation):
                     statistics.append_record(feasible=node_noncoverage)
-                print(statistics)
-                print_placed_station(node, data)
+                    print(statistics)
+                    print_placed_station(node, data)
             return True
 
 
