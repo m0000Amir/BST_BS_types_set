@@ -126,7 +126,9 @@ def get_station_parameters(
         gateway: dict,
         user_device: dict,
         sta: list,
-        f: float) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+        f: float,
+        link_som: float,
+        coverage_som: float) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
 
     sta_param = StaParameterSet(
         p_tr_link=list(sta[i]['Ptr_link'] for i in range(len(sta))),
@@ -163,7 +165,9 @@ def get_station_parameters(
                                         p_recv=sta_param.p_recv_link[s2],
                                         g_recv=sta_param.g_tr_link[s2],
                                         l_recv=sta_param.l_link[s2])
-            link_distance2sta[s1, s2] = get_distance(ld_input, som=20, f=f)
+            link_distance2sta[s1, s2] = get_distance(ld_input,
+                                                     som=link_som,
+                                                     f=f)
     for s1 in i:
         ld2gtw_input = GetDistanceInput(p_tr=sta_param.p_tr_link[s1],
                                         l_tr=sta_param.l_link[s1],
@@ -171,7 +175,9 @@ def get_station_parameters(
                                         p_recv=gtw_param.p_recv,
                                         g_recv=gtw_param.g_recv,
                                         l_recv=gtw_param.l_recv)
-        link_distance2gateway[s1] = get_distance(ld2gtw_input, som=20, f=f)
+        link_distance2gateway[s1] = get_distance(ld2gtw_input,
+                                                 som=link_som,
+                                                 f=f)
     for s1 in i:
         gtw2ld_input = GetDistanceInput(p_tr=gtw_param.p_tr,
                                         g_tr=gtw_param.g_tr,
@@ -180,7 +186,9 @@ def get_station_parameters(
                                         l_recv=sta_param.l_link[s1],
                                         g_recv=sta_param.g_tr_link[s1],
                                         )
-        gtw2link_distance[s1] = get_distance(gtw2ld_input, som=20, f=f)
+        gtw2link_distance[s1] = get_distance(gtw2ld_input,
+                                             som=link_som,
+                                             f=f)
     for s1 in i:
         coverage_input = GetDistanceInput(p_tr=ud_param.p_tr,
                                           l_tr=ud_param.l_tr,
@@ -189,7 +197,7 @@ def get_station_parameters(
                                           p_recv=sta_param.p_recv_coverage[s1],
                                           l_recv=sta_param.l_coverage[s1],
                                           g_recv=sta_param.g_recv_coverage[s1])
-        coverage[s1] = get_distance(coverage_input, som=14, f=f)
+        coverage[s1] = get_distance(coverage_input, som=coverage_som, f=f)
     print('coverage = {}'.format(coverage))
     print('link distance = {}'.format(link_distance2sta))
     print('link distance 2 gateway = {}'.format(link_distance2gateway))

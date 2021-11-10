@@ -121,7 +121,7 @@ def solve_delay(s, node: Node, data: dataclass) -> float:
         End-to-end delay
     """
 
-    departure_rate = data.throughput[s] / data.average_packet_size
+    departure_rate = 0.5*data.throughput[s] / data.average_packet_size
     # Amount of all placed station is
     _, j = np.where(node.left_child.pi == 1)
     placed_sta_amount = len(j)

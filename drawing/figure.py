@@ -5,9 +5,12 @@ import matplotlib.pyplot as plt
 
 def draw(graph):
     plt.close()
-    nx.draw(graph,
-            pos=_hierarchy_pos(graph, next(iter(graph.nodes))),
-            with_labels=True)
+    from networkx.drawing.nx_agraph import graphviz_layout
+    pos = graphviz_layout(graph, prog='dot')
+    nx.draw(graph, pos, with_labels=True, arrows=False)
+    # nx.draw(graph,
+    #         pos=_hierarchy_pos(graph, next(iter(graph.nodes))),
+    #         with_labels=True)
     plt.show()
 
 
@@ -33,7 +36,7 @@ def _hierarchy_pos(graph, root, width=1., vert_gap=1, vert_loc=0, xcenter=.5,
     neighbors = list(graph.neighbors(root))
 
     if len(neighbors) != 0:
-        dx = width / len(neighbors)
+        dx = width / 1.9
         nextx = xcenter - width / 2 - dx / 2
         for neighbor in neighbors:
             nextx += dx

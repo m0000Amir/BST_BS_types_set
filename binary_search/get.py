@@ -40,6 +40,7 @@ class Problem:
         self.average_packet_size = dataset['average_packet_size']
         self.sta = dataset['sta']
         self.frequency = dataset['frequency']
+        self.link_som = dataset['frequency']
 
 
 @dataclass()
@@ -59,6 +60,7 @@ class InputParameters:
     deviation = None
     method = None
     place_all_station = None
+    estimation_method = None
 
 
 def print_placed_station(node: Node, data: dataclass) -> None:
@@ -104,12 +106,16 @@ def prepare_problem_data(input_data: Problem, config: dict) -> InputParameters:
     data.throughput = tuple(
         input_data.sta[i]['throughput'] for i in range(len(input_data.sta)))
     data.frequency = input_data.frequency
+    data.link_som = config["link_som"]
+    data.coverage_som = config["coverage_som"]
     data.link_distance, \
         data.link_distance2gateway, \
         data.coverage = get_station_parameters(input_data.gateway,
                                                input_data.user_device,
                                                input_data.sta,
-                                               data.frequency)
+                                               data.frequency,
+                                               data.link_som,
+                                               data.coverage_som)
 
     relative_deviation = config["relative_deviation"]
 
@@ -120,6 +126,8 @@ def prepare_problem_data(input_data: Problem, config: dict) -> InputParameters:
                                                data.gateway_coordinate[0])
     data.method = config["method"]
     data.place_all_station = config["place_all_station"]
+    data.estimation_method = config["estimation_method"]
+
     return data
 
 
@@ -242,5 +250,6 @@ def run(input_data: Problem, config: dict) -> None:
         else:
             parent = tree.unchecked_node[-1]
             tree.unchecked_node.pop()
-    # draw(tree.graph)
+    if config["drawing"]:
+        draw(tree.graph)
     print('Total number of nodes is {}'.format(tree.node_keys[-1]))

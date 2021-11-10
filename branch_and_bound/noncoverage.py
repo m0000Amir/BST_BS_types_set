@@ -21,8 +21,7 @@ def get_noncoverage_estimation(p: int,
                                s: int,
                                node: Node,
                                data: dataclass,
-                               engine: MatlabEngine,
-                               flag: str = 'ILP') -> Tuple[float, bool]:
+                               engine: MatlabEngine) -> Tuple[float, bool]:
     """
     Calculate estimates of noncoverage
 
@@ -42,7 +41,6 @@ def get_noncoverage_estimation(p: int,
     -------
         Noncoverage estimate
     """
-
     i, j = np.where(node.pi == 1)
 
     vacant_stations_coverage = [data.coverage[i]
@@ -60,7 +58,7 @@ def get_noncoverage_estimation(p: int,
     else:
         remaining_cost = data.cost_limit - node.cost - data.cost[s]
 
-        if flag == 'knapsack':
+        if data.estimation_method == 'knapsack':
             problem = KnapsackProblem(vacant_stations_coverage,
                                       vacant_stations_cost,
                                       remaining_cost)
@@ -71,7 +69,7 @@ def get_noncoverage_estimation(p: int,
                           remaining_cost,
                           vacant_placement_points)
 
-        if flag == 'knapsack' or flag == 'ILP':
+        if data.estimation_method == 'knapsack' or data.estimation_method == 'ILP':
             right_cov_estimate = solve_ilp_problem(problem, engine)
         # elif flag == 'LP':
         else:
@@ -199,7 +197,7 @@ def check_estimation(p: int,
 
     else:
         node.left_child.noncoverage.estimate = get_noncoverage_estimation(
-            p, s, node, data, eng, flag='ILP')
+            p, s, node, data, eng)
     statistics.add(p, s, node.left_child)
 
     return better_than_record(node, data, statistics)

@@ -1,5 +1,9 @@
 {
   "method": 0,
-  "place_all_station": false,
-  "relative_deviation": 0.03
+  "place_all_station": true,
+  "relative_deviation": null,
+  "estimation_method": "ILP",
+  "link_som": 20,
+  "coverage_som": 10,
+  "drawing": true
 }
