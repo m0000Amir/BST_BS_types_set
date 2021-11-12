@@ -5,3 +5,5 @@ venv
 env
 input_debug.json
 **/.idea
+*.png
+*.jpeg

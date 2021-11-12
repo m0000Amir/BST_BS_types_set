@@ -13,7 +13,7 @@ from network.connection_between_station import is_able_to_connect_gateways
 from brute_force.noncoverage import check_noncoverage
 from branch_and_bound.noncoverage import check_estimation
 from network.link_budget import get_station_parameters
-from drawing.figure import draw
+from drawing.figure import plot
 
 from dataclasses import dataclass
 
@@ -221,12 +221,14 @@ def run(input_data: Problem, config: dict) -> None:
                 i, j, parent, data)
             parent.left_child.noncoverage.left = left_noncoverage
             parent.left_child.noncoverage.right = right_noncoverage
+            statistics.add(i, j, parent.left_child)
 
             """add right node"""
             tree.add_right_node(i, j, parent)
             parent.right_child.noncoverage = parent.noncoverage
             parent.right_child.cost = parent.cost
             parent.right_child.delay = parent.delay
+            statistics.add(i, j, parent.right_child)
 
             # PLOT GRAPH
             # draw(tree.graph)
@@ -239,6 +241,10 @@ def run(input_data: Problem, config: dict) -> None:
                         parent = parent.left_child
                     else:
                         tree.unchecked_node.pop()
+
+                        parent.left_child.close = True
+                        statistics.write_close_node(parent.left_child.key)
+
                         parent = parent.right_child
                 else:
                     "Brute force method"
@@ -246,10 +252,18 @@ def run(input_data: Problem, config: dict) -> None:
                     parent = parent.left_child
             else:
                 tree.unchecked_node.pop()
+
+                parent.left_child.close = True
+                statistics.write_close_node(parent.left_child.key)
+
                 parent = parent.right_child
         else:
+            parent.close = True
+            statistics.write_close_node(parent.key)
             parent = tree.unchecked_node[-1]
             tree.unchecked_node.pop()
+
+    statistics.write_close_node(parent.key)
     if config["drawing"]:
-        draw(tree.graph)
+        plot(tree, statistics)
     print('Total number of nodes is {}'.format(tree.node_keys[-1]))

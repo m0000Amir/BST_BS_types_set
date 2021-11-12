@@ -1,5 +1,5 @@
 {
-  "method": 0,
+  "method": -1,
   "place_all_station": true,
   "relative_deviation": null,
   "estimation_method": "ILP",

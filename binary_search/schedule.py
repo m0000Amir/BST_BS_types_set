@@ -22,31 +22,52 @@ class Schedule:
         self.cost = list()
         self.delay = list()
         self.step = list()
+        """ Obtained Records"""
         self.record = [{'optimal': None, 'subsequence': list()}]
+        self.record_noncoverage = list()
+        self.record_cost = list()
+        self.record_delay = list()
+        self.record_node = list()
         self._record_type = None
         self.print_record = list()
         self.add(float('inf'), float('inf'), top)
+        self.close_nodes = list()
 
     def __str__(self):
         if self._record_type == "Optimal":
             color = "magenta"
+            key = "optimal"
         else:
             color = "cyan"
+            key = "subsequence"
 
         return colored("{} = {},  Cost = {},  Delay =  {},  node = {}".format(
-            self._record_type, self.noncoverage[-1], self.cost[-1],
-            self.delay[-1], self.step[-1]),
+            self._record_type,
+            self.record_noncoverage[-1],
+            self.record_cost[-1],
+            self.record_delay[-1],
+            self.record_node[-1]),
             color, attrs=['bold', 'blink'])
 
-    def append_record(self, optimal=None, feasible=None) -> None:
+    def append_record(self, node: Node, optimal=None, feasible=None) -> None:
         if optimal is not None:
-            self.record.append({'optimal': None, 'subsequence': list()})
+            self.record.append({'optimal': None,
+                                'subsequence': list()})
             self.record[-1]['optimal'] = optimal
+            self.record_noncoverage.append(optimal)
+            self.record_cost.append(self.cost[-1])
+            self.record_delay.append(self.delay[-1])
+            self.record_node.append(node.left_child.key)
             self._record_type = "Optimal"
+
         elif feasible is not None:
-            # self.record.append({'optimal': None, 'subsequence': list()})
             self.record[-1]['subsequence'].append(feasible)
             self._record_type = '\tFeasible'
+            self.record_noncoverage.append(feasible)
+            self.record_cost.append(self.cost[-1])
+            self.record_delay.append(self.delay[-1])
+            self.record_node.append(node.left_child.key)
+
 
     def add(self, p, s, node):
         """
@@ -65,3 +86,5 @@ class Schedule:
         self.delay.append(node.delay)
         self.step.append(node.key)
 
+    def write_close_node(self, key: int):
+        self.close_nodes.append(key)

@@ -120,7 +120,7 @@ def better_than_record(node: Node,
                                     node.left_child.noncoverage.right)
 
                 if node_noncoverage < statistics.record[-1]['optimal']:
-                    statistics.append_record(optimal=node_noncoverage)
+                    statistics.append_record(node, optimal=node_noncoverage)
                     print(statistics)
                     print_placed_station(node, data)
             return True
@@ -140,12 +140,12 @@ def better_than_record(node: Node,
                                     node.left_child.noncoverage.right)
 
                 if node_noncoverage < statistics.record[-1]['optimal']:
-                    statistics.append_record(optimal=node_noncoverage)
+                    statistics.append_record(node, optimal=node_noncoverage)
                     print(statistics)
                     print_placed_station(node, data)
                 elif node_noncoverage <= (statistics.record[-1]['optimal'] +
                                           data.deviation):
-                    statistics.append_record(feasible=node_noncoverage)
+                    statistics.append_record(node, feasible=node_noncoverage)
                     print(statistics)
                     print_placed_station(node, data)
             return True
@@ -198,7 +198,7 @@ def check_estimation(p: int,
     else:
         node.left_child.noncoverage.estimate = get_noncoverage_estimation(
             p, s, node, data, eng)
-    statistics.add(p, s, node.left_child)
+    # statistics.add(p, s, node.left_child)
 
     return better_than_record(node, data, statistics)
 
