@@ -31,6 +31,7 @@ class Schedule:
         self._record_type = None
         self.print_record = list()
         self.add(float('inf'), float('inf'), top)
+        self.infeasible_placement_nodes = list()
         self.close_nodes = list()
 
     def __str__(self):

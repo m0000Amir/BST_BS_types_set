@@ -165,7 +165,6 @@ def check_node(i: int, j: int, node: Node, data: dataclass) -> bool:
                 and check_cost(node.left_child, data.cost_limit)
                 and check_delay(node.left_child, data.delay_limit)):
             return True
-
     return False
 
 
@@ -255,6 +254,7 @@ def run(input_data: Problem, config: dict) -> None:
 
                 parent.left_child.close = True
                 statistics.write_close_node(parent.left_child.key)
+                statistics.infeasible_placement_nodes.append(parent.left_child.key)
 
                 parent = parent.right_child
         else:
