@@ -20,23 +20,16 @@ def plot(tree: Tree, stat: Schedule) -> None:
     """
     labels = {}
     for n in tree.graph.nodes:
-        # if n in stat.close_nodes:
-        #     if n in stat.record_node:
-        #
-        #         if n in stat.infeasible_placement_nodes:
-        #             label = r"$\varnothing$"
-        #         else:
-        #             label = f"$\\textit{{\\textbf{{f = }}}}$ \n" \
-        #                     f"$\\bf{{{int(stat.noncoverage[n])}}}$"
-        # else:
-        #     label = fr"$W = {{{int(stat.noncoverage[n])}}}$"
 
         if n in stat.record_node:
             label = f"$\\textit{{\\textbf{{f = }}}}$ $\\bf{{{int(stat.noncoverage[n])}}}$"
         elif n in stat.infeasible_placement_nodes:
             label = r"$\varnothing$"
         else:
-            label = fr"$W = {{{int(stat.noncoverage[n])}}}$"
+            if stat.method == "Brute_force":
+                label = fr"$W = {{{int(stat.noncoverage[n])}}}$"
+            else:
+                label = fr"$W = {{{int(stat.estimate[n])}}}$"
         labels.update({stat.step[n]: label})
 
     color_map = []

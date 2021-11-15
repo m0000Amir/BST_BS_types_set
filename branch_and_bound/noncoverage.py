@@ -198,7 +198,6 @@ def check_estimation(p: int,
     else:
         node.left_child.noncoverage.estimate = get_noncoverage_estimation(
             p, s, node, data, eng)
-    # statistics.add(p, s, node.left_child)
 
     return better_than_record(node, data, statistics)
 

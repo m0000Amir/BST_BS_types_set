@@ -128,7 +128,8 @@ def get_station_parameters(
         sta: list,
         f: float,
         link_som: float,
-        coverage_som: float) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+        coverage_som: float) -> Tuple[np.ndarray, np.ndarray,
+                                      np.ndarray, np.ndarray]:
 
     sta_param = StaParameterSet(
         p_tr_link=list(sta[i]['Ptr_link'] for i in range(len(sta))),
@@ -202,7 +203,7 @@ def get_station_parameters(
     print('link distance = {}'.format(link_distance2sta))
     print('link distance 2 gateway = {}'.format(link_distance2gateway))
     print('gateway 2 link distance = {}'.format(gtw2link_distance))
-    return link_distance2sta, link_distance2gateway, coverage
+    return link_distance2sta, link_distance2gateway, gtw2link_distance, coverage
 
 
 if __name__ == '__main__':

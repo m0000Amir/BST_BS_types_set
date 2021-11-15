@@ -31,19 +31,22 @@ def is_able_to_connect_gateways(node: Node, gtw) -> bool:
 
 def is_able_to_exist_solution(comm_dist: np.ndarray,
                               comm_dist2gtw: np.array,
+                              gtw2comm_dist: np.array,
                               place: Tuple[float],
                               gtw: Tuple[float]) -> bool:
     """ checking the existence of feasible problem """
-    # first_max = max(comm_dist)
-    first_max = comm_dist2gtw.max()
+
+    # first_max = comm_dist2gtw.max()
+    i = np.argmax(comm_dist2gtw)
+    first_max = comm_dist2gtw[i]
 
     if not (_in_range(gtw[0], place[0], first_max) and
-            _in_range(gtw[1], place[-1], first_max)):
+            _in_range(gtw[0], place[0], gtw2comm_dist[i]) and
+            _in_range(gtw[1], place[-1], first_max) and
+            _in_range(gtw[1], place[-1], gtw2comm_dist[i])):
         return False
 
-    # second_max = max(comm_dist[i] for i in range(len(comm_dist))
-    #                  if i != comm_dist.index(first_max))
-    # second_max = np.sort(np.max(comm_dist, axis=0))[-2]
+    _comm_dist = comm_dist[np.arange(len(comm_dist)) != i]
     second_max = comm_dist.max()
     for i in range(len(place) - 1):
         if not _in_range(place[i], place[i + 1], second_max):

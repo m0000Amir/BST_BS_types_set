@@ -56,6 +56,7 @@ class InputParameters:
     frequency = None
     link_distance = None
     link_distance2gateway = None
+    gateway2link_distance = None
     coverage = None
     deviation = None
     method = None
@@ -110,7 +111,8 @@ def prepare_problem_data(input_data: Problem, config: dict) -> InputParameters:
     data.coverage_som = config["coverage_som"]
     data.link_distance, \
         data.link_distance2gateway, \
-        data.coverage = get_station_parameters(input_data.gateway,
+        data.gateway2link_distance, \
+    data.coverage = get_station_parameters(input_data.gateway,
                                                input_data.user_device,
                                                input_data.sta,
                                                data.frequency,
@@ -176,6 +178,7 @@ def run(input_data: Problem, config: dict) -> None:
     assert is_able_to_exist_solution(
         data.link_distance,
         data.link_distance2gateway,
+        data.gateway2link_distance,
         data.placement_coordinate,
         data.gateway_coordinate), 'There is not problem for this case'
 
@@ -203,9 +206,9 @@ def run(input_data: Problem, config: dict) -> None:
     Initialize Tree and Schedule
     """
     tree = Tree()
-    tree.initiate(data.placement_coordinate, data.coverage)
+    tree.initiate(data.placement_coordinate, data.gateway_coordinate[1], data.coverage)
 
-    statistics = Schedule(tree.top)
+    statistics = Schedule(tree.top, method)
     statistics.record[-1]['optimal'] = data.gateway_coordinate[-1]
 
     parent = tree.top
@@ -237,6 +240,7 @@ def run(input_data: Problem, config: dict) -> None:
                     "Branch and bound method"
                     if check_estimation(i, j, parent, data, statistics,
                                         matlab_engine):
+                        statistics.append_estimates(parent)
                         parent = parent.left_child
                     else:
                         tree.unchecked_node.pop()
@@ -244,10 +248,12 @@ def run(input_data: Problem, config: dict) -> None:
                         parent.left_child.close = True
                         statistics.write_close_node(parent.left_child.key)
 
+                        statistics.append_estimates(parent)
                         parent = parent.right_child
                 else:
                     "Brute force method"
                     check_noncoverage(i, j, parent, data, statistics)
+                    statistics.append_estimates(parent)
                     parent = parent.left_child
             else:
                 tree.unchecked_node.pop()
@@ -256,10 +262,13 @@ def run(input_data: Problem, config: dict) -> None:
                 statistics.write_close_node(parent.left_child.key)
                 statistics.infeasible_placement_nodes.append(parent.left_child.key)
 
+                statistics.append_estimates(parent)
                 parent = parent.right_child
         else:
             parent.close = True
             statistics.write_close_node(parent.key)
+            if parent.key not in statistics.record_node:
+                statistics.infeasible_placement_nodes.append(parent.key)
             parent = tree.unchecked_node[-1]
             tree.unchecked_node.pop()
 

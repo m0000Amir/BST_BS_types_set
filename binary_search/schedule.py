@@ -13,11 +13,12 @@ class Schedule:
     """
     Solution record
     """
-    def __init__(self, top: Node) -> None:
+    def __init__(self, top: Node, method: str) -> None:
+        self.method = method
         self.place = list()
         self.station = list()
         self.pi = list()
-        self.estimate = list()
+        self.estimate = {top.key: top.noncoverage.estimate}
         self.noncoverage = list()
         self.cost = list()
         self.delay = list()
@@ -30,9 +31,10 @@ class Schedule:
         self.record_node = list()
         self._record_type = None
         self.print_record = list()
-        self.add(float('inf'), float('inf'), top)
         self.infeasible_placement_nodes = list()
         self.close_nodes = list()
+
+        self.add(float('inf'), float('inf'), top)
 
     def __str__(self):
         if self._record_type == "Optimal":
@@ -69,7 +71,6 @@ class Schedule:
             self.record_delay.append(self.delay[-1])
             self.record_node.append(node.left_child.key)
 
-
     def add(self, p, s, node):
         """
 
@@ -81,7 +82,6 @@ class Schedule:
         self.place.append(p)
         self.station.append(s)
         self.pi.append(node.pi[p, s] if p != float('inf') else float('inf'))
-        self.estimate.append(node.noncoverage.estimate)
         self.noncoverage.append(node.noncoverage.left + node.noncoverage.right)
         self.cost.append(node.cost)
         self.delay.append(node.delay)
@@ -89,3 +89,7 @@ class Schedule:
 
     def write_close_node(self, key: int):
         self.close_nodes.append(key)
+
+    def append_estimates(self, node: Node) -> None:
+        self.estimate.update({node.left_child.key: node.left_child.noncoverage.estimate})
+        self.estimate.update({node.right_child.key: node.right_child.noncoverage.estimate})

@@ -37,7 +37,10 @@ class Tree:
         self.node_keys = list()
         self._key_counter = 0  # Stack of all nodes
 
-    def initiate(self, place: Tuple[float], cov: np.ndarray) -> None:
+    def initiate(self,
+                 place: Tuple[float],
+                 right_gtw_place: float,
+                 cov: np.ndarray) -> None:
         """
         Initiate of binary tree
 
@@ -52,6 +55,7 @@ class Tree:
         key = self._key_counter
         self.node_keys.append(key)
         self.top = Node(pi, key)
+        self.top.noncoverage.estimate = max(right_gtw_place - 2* sum(cov), 0)
         self.top.cost = 0
         self.top.delay = 0
         self.graph.add_node(self.top.key)
