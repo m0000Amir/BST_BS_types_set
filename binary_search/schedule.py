@@ -58,8 +58,8 @@ class Schedule:
                                 'subsequence': list()})
             self.record[-1]['optimal'] = optimal
             self.record_noncoverage.append(optimal)
-            self.record_cost.append(self.cost[-1])
-            self.record_delay.append(self.delay[-1])
+            self.record_cost.append(node.left_child.cost)
+            self.record_delay.append(node.left_child.delay)
             self.record_node.append(node.left_child.key)
             self._record_type = "Optimal"
 
@@ -67,8 +67,8 @@ class Schedule:
             self.record[-1]['subsequence'].append(feasible)
             self._record_type = '\tFeasible'
             self.record_noncoverage.append(feasible)
-            self.record_cost.append(self.cost[-1])
-            self.record_delay.append(self.delay[-1])
+            self.record_cost.append(node.left_child.cost)
+            self.record_delay.append(node.left_child.delay)
             self.record_node.append(node.left_child.key)
 
     def add(self, p, s, node):
