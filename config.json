@@ -1,9 +1,9 @@
 {
-  "method": -1,
-  "place_all_station": true,
-  "relative_deviation": null,
+  "method": 0,
+  "place_all_station": false,
+  "relative_deviation": 0.01,
   "estimation_method": "ILP",
   "link_som": 20,
-  "coverage_som": 10,
-  "drawing": true
+  "coverage_som": 14,
+  "drawing": false
 }

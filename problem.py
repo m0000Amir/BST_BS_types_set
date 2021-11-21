@@ -16,7 +16,7 @@ with open('config.json') as json_file:
     config = json.load(json_file)
 
 
-with open('input/article_draw_graph.json') as json_file:
+with open('input/article_experience.json') as json_file:
     """
     JSON include input data
     """
