@@ -129,8 +129,10 @@ def better_than_record(node: Node,
         The method gives the sequence of best decisions. Results consist of 
         optimal solutions and feasible solutions.
         """
+        # if node.left_child.noncoverage.estimate <= (
+        #         statistics.record[-1]['optimal'] + data.deviation):
         if node.left_child.noncoverage.estimate <= (
-                statistics.record[-1]['optimal'] + data.deviation):
+                data.last_optimal_noncoverage + data.deviation):
 
             # if is_able_to_connect_gateways(node.left_child,
             #                                data.gateway_coordinate):
@@ -138,16 +140,17 @@ def better_than_record(node: Node,
             if is_able_to_get_solution(node, data):
                 node_noncoverage = (node.left_child.noncoverage.left +
                                     node.left_child.noncoverage.right)
-
-                if node_noncoverage < statistics.record[-1]['optimal']:
-                    statistics.append_record(node, optimal=node_noncoverage)
-                    print(statistics)
-                    print_placed_station(node, data)
-                elif node_noncoverage <= (statistics.record[-1]['optimal'] +
-                                          data.deviation):
-                    statistics.append_record(node, feasible=node_noncoverage)
-                    print(statistics)
-                    print_placed_station(node, data)
+                if node_noncoverage <= (data.last_optimal_noncoverage +
+                                        data.deviation):
+                    if len(statistics.record) == 1:
+                        # Initial record (all linear section)
+                        statistics.append_record(node, optimal=node_noncoverage)
+                        print(statistics)
+                        print_placed_station(node, data)
+                    else:
+                        statistics.append_record(node, feasible=node_noncoverage)
+                        print(statistics)
+                        print_placed_station(node, data)
             return True
 
 

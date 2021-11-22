@@ -107,7 +107,7 @@ if __name__ == "__main__":
 
     labels = {0: fr"$G_\nu$", 1: fr"$G^1_\nu$", 2: fr"$G^2_\nu$"}
 
-    color_map = ['deepskyblue'] * len(g.nodes)
+    color_map = ['w'] * len(g.nodes)
 
     matplotlib.rc('text', usetex=True)
     plt.rcParams['text.latex.preamble'] = \
@@ -116,9 +116,9 @@ if __name__ == "__main__":
     plt.figure(figsize=(6, 4.8))
 
     pos = {0: (63.0, 20.0), 1: (27.0, 19.5), 2: (99.0, 19.5)}
-    nx.draw(g, pos, node_size=2500, node_color=color_map)
-    nx.draw_networkx_edges(g, pos, width=3)
-    nx.draw_networkx_labels(g, pos, labels, font_size=25)
+    nx.draw(g, pos, node_size=2500, node_color=color_map, edgecolors='k')
+    nx.draw_networkx_edges(g, pos, width=3, arrows=False)
+    nx.draw_networkx_labels(g, pos, labels, font_size=25, font_color='k')
     nx.draw_networkx_edge_labels(g,
                                  pos,
                                  edge_labels={(0, 1): r'$\pi_{ij} = 1$',

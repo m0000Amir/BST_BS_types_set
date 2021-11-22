@@ -111,6 +111,8 @@ def get_distance(lb_input: GetDistanceInput,
     f - radio wave centre frequency
     k - constant of free space path loss equation
 
+
+
     Returns
     -------
         Distance of radio signal broadcast
@@ -118,7 +120,9 @@ def get_distance(lb_input: GetDistanceInput,
     """
     l_fs = (lb_input.p_tr - lb_input.l_tr + lb_input.g_tr + lb_input.g_recv -
             lb_input.l_recv - lb_input.p_recv - som)
-    distance = round(10 ** ((l_fs - 20 * log10(f) - k)/20))
+    # distance = round(10 ** ((l_fs - 20 * log10(f) - k)/20))
+    distance = round(10 ** ((l_fs - 20 * log10(f) +
+                             lb_input.g_tr + lb_input.g_recv - k) / 20))
     return distance
 
 

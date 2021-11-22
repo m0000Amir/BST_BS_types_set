@@ -62,6 +62,7 @@ class InputParameters:
     method = None
     place_all_station = None
     estimation_method = None
+    last_optimal_noncoverage = None
 
 
 def print_placed_station(node: Node, data: dataclass) -> None:
@@ -113,19 +114,21 @@ def prepare_problem_data(input_data: Problem, config: dict) -> InputParameters:
         data.link_distance2gateway, \
         data.gateway2link_distance, \
     data.coverage = get_station_parameters(input_data.gateway,
-                                               input_data.user_device,
-                                               input_data.sta,
-                                               data.frequency,
-                                               data.link_som,
-                                               data.coverage_som)
+                                           input_data.user_device,
+                                           input_data.sta,
+                                           data.frequency,
+                                           data.link_som,
+                                           data.coverage_som)
 
     relative_deviation = config["relative_deviation"]
 
     if relative_deviation is None:
         data.deviation = None
+        data.last_optimal_noncoverage = None
     else:
         data.deviation = relative_deviation * (data.gateway_coordinate[1] -
                                                data.gateway_coordinate[0])
+        data.last_optimal_noncoverage = config["last_optimal_noncoverage"]
     data.method = config["method"]
     data.place_all_station = config["place_all_station"]
     data.estimation_method = config["estimation_method"]
