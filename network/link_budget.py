@@ -49,6 +49,7 @@ from typing import Tuple
 
 
 import numpy as np
+from termcolor import colored
 
 
 @dataclass()
@@ -203,10 +204,14 @@ def get_station_parameters(
                                           l_recv=sta_param.l_coverage[s1],
                                           g_recv=sta_param.g_recv_coverage[s1])
         coverage[s1] = get_distance(coverage_input, som=coverage_som, f=f)
-    print('coverage = {}'.format(coverage))
-    print('link distance = {}'.format(link_distance2sta))
-    print('link distance 2 gateway = {}'.format(link_distance2gateway))
-    print('gateway 2 link distance = {}'.format(gtw2link_distance))
+    print(colored(f'-- Coverage --', 'cyan', attrs=['bold']))
+    print(coverage)
+    print(colored(f'-- Link Distance --', 'cyan', attrs=['bold']))
+    print(link_distance2sta)
+    print(colored(f'-- Link Distance to Gateway --', 'cyan', attrs=['bold']))
+    print(link_distance2gateway)
+    print(colored(f'-- Link Distance from Gateway --', 'cyan', attrs=['bold']))
+    print(gtw2link_distance)
     return link_distance2sta, link_distance2gateway, gtw2link_distance, coverage
 
 

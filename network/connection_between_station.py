@@ -77,15 +77,15 @@ def is_able_to_connect_to_left_station(p: int, s: int, node: Node,
 
     if 1 in node.pi:  # If any station has been already placed.
         i, j = np.where(node.pi == 1)
-        current_link = data.link_distance[s, j[-1]]
+        current_link = data.radio.link_distance[s, j[-1]]
         left_place = data.placement_coordinate[i[-1]]
-        left_link = data.link_distance[j[-1], s]
+        left_link = data.radio.link_distance[j[-1], s]
         if not _in_range(left_place, current_place, left_link):
             node.close = True
             return False
     else:
         left_place = data.gateway_coordinate[0]
-        current_link = data.link_distance2gateway[s]
+        current_link = data.radio.link_distance2gateway[s]
     if not _in_range(left_place, current_place, current_link):
         node.close = True
         return False
@@ -115,26 +115,26 @@ def is_able_to_connect_to_right_station(p: int, s: int, node: Node,
     node.right_child.link.right = node.link.right
 
     i, j = np.where(node.pi == 1)
-    unplaced_sta_index = [i for i in range(data.link_distance.shape[0])
+    unplaced_sta_index = [i for i in range(data.radio.link_distance.shape[0])
                           if (i not in j) and (i is not s)]
 
     current_place = data.placement_coordinate[p]
 
-    vacant_link_distance = data.link_distance[unplaced_sta_index, :]
+    vacant_link_distance = data.radio.link_distance[unplaced_sta_index, :]
 
     if ((current_place == data.placement_coordinate[-1]) or
             (len(vacant_link_distance) is 0)):
         right_place = data.gateway_coordinate[-1]
-        current_link = data.link_distance2gateway[s]
+        current_link = data.radio.link_distance2gateway[s]
     else:
         vld_j, = np.where(
-            data.link_distance[:, s] == vacant_link_distance[:, s].max())
-        current_link = data.link_distance[s, vld_j[-1]]
+            data.radio.link_distance[:, s] == vacant_link_distance[:, s].max())
+        current_link = data.radio.link_distance[s, vld_j[-1]]
         right_place = data.placement_coordinate[p + 1]
 
         if not _in_range(right_place,
                          current_place,
-                         data.link_distance[vld_j[-1], s]):
+                         data.radio.link_distance[vld_j[-1], s]):
             node.close = True
             return False
 
@@ -167,15 +167,15 @@ def is_able_to_connect_vacant_station(p: int, s: int, node: Node,
         return True
 
     _, j = np.where(node.pi == 1)
-    unplaced_sta_index = [i for i in range(data.link_distance.shape[0])
+    unplaced_sta_index = [i for i in range(data.radio.link_distance.shape[0])
                           if (i not in j) and (i is not s)]
-    unplaced_stat_link_distance = data.link_distance[unplaced_sta_index, :]
+    unplaced_stat_link_distance = data.radio.link_distance[unplaced_sta_index, :]
 
     if len(unplaced_stat_link_distance) == 0:
         return True
 
     uld_j, = np.where(
-        data.link_distance[:, s] == unplaced_stat_link_distance[:, s].max())
+        data.radio.link_distance[:, s] == unplaced_stat_link_distance[:, s].max())
 
     if len(unplaced_stat_link_distance) == 1:
         node.close = True
@@ -186,14 +186,14 @@ def is_able_to_connect_vacant_station(p: int, s: int, node: Node,
         else:
             for right_p in (data.placement_coordinate[p + 1:]):
                 bool1 = _in_range(data.placement_coordinate[p], right_p,
-                                  data.link_distance[uld_j[-1], s])
+                                  data.radio.link_distance[uld_j[-1], s])
                 bool2 = _in_range(right_p, data.gateway_coordinate[-1],
-                                  data.link_distance2gateway[uld_j[-1]])
+                                  data.radio.link_distance2gateway[uld_j[-1]])
                 node.close = not (bool1 and bool2)
             return not node.close
 
     if len(unplaced_stat_link_distance) > 1:
-        first_max = data.link_distance2gateway[unplaced_sta_index].max()
+        first_max = data.radio.link_distance2gateway[unplaced_sta_index].max()
         second_max = unplaced_stat_link_distance.max()
         for i in range(len(data.placement_coordinate[p + 1:])):
             if i == len(data.placement_coordinate) - 1:

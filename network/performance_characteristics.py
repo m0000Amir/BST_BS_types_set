@@ -63,7 +63,7 @@ def solve_noncoverage(p: int,
         left_station_coverage = 0
     else:
         left_station_placement_point = data.placement_coordinate[i[-1]]
-        left_station_coverage = data.coverage[j[-1]]
+        left_station_coverage = data.radio.coverage[j[-1]]
 
     # left noncoverage
     left_noncoverage = (node.noncoverage.left +
@@ -71,12 +71,14 @@ def solve_noncoverage(p: int,
                             left_station_placement_point,
                             data.placement_coordinate[p],
                             left_station_coverage,
-                            data.coverage[s]))
+                            data.radio.coverage[s]))
 
     # right noncoverage
     distance_to_right_gateway = (data.gateway_coordinate[-1] -
                                  data.placement_coordinate[p])
-    right_noncoverage = max(distance_to_right_gateway - data.coverage[s], 0)
+    right_noncoverage = max(
+        distance_to_right_gateway - data.radio.coverage[s], 0
+    )
 
     return left_noncoverage, right_noncoverage
 
@@ -114,19 +116,19 @@ def solve_delay(s, node: Node, data: dataclass) -> float:
     ----------
     s - index of station
     node - parent node
-    data - input_data
+    data - input data
 
     Returns
     -------
         End-to-end delay
     """
 
-    departure_rate = 0.5*data.throughput[s] / data.average_packet_size
+    departure_rate = 0.5*data.throughput[s] / data.arrival.packet_size
     # Amount of all placed station is
     _, j = np.where(node.left_child.pi == 1)
     placed_sta_amount = len(j)
     # By Burke's total arrival rate is
-    total_arrival_rate = data.arrival_rate * placed_sta_amount
+    total_arrival_rate = data.arrival.rate * placed_sta_amount
 
     rho = total_arrival_rate / departure_rate
     # rho must be less than 0.9 (rho < 1 theoretically)

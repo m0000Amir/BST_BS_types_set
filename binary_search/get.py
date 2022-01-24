@@ -19,7 +19,7 @@ from dataclasses import dataclass
 
 import matlab.engine
 import numpy as np
-from termcolor import colored
+
 
 
 class Problem:
@@ -65,24 +65,146 @@ class InputParameters:
     last_optimal_noncoverage = None
 
 
-def print_placed_station(node: Node, data: dataclass) -> None:
+@dataclass()
+class Restriction:
+    cost_limit: None
+    delay_limit: None
+
+
+@dataclass()
+class Arrival:
+    rate: None
+    packet_size: None
+
+
+@dataclass()
+class Configuration:
+    method: None
+    place_all_station: None
+    estimation_method: None
+    deviation: None
+    last_optimal_noncoverage: None
+    drawing: None
+
+
+@dataclass()
+class Radio:
+    sta = None
+    gateway = None
+    user_device = None
+    frequency = None
+    link_som = None
+    coverage_som = None
+    link_distance = None
+    link_distance2gateway = None
+    gateway2link_distance = None
+    coverage = None
+
+
+@dataclass()
+class InputData:
+    configuration = Configuration
+
+    gateway_coordinate = None
+    placement_coordinate = None
+
+    restriction = Restriction
+    arrival = Arrival
+
+    cost = None
+    throughput = None
+
+    radio = Radio
+
+
+
+
+def prepare(input_dataset: dict, config: dict) -> InputData:
     """
-    Print station placement
+
     Parameters
     ----------
-    node - current node
-    data - input data
+    input_data -  input from JSON-file
+    config - configuration parameters from JSON-file
 
+    Returns
+    -------
+        data: InputData
     """
-    i, j = np.where(node.left_child.pi == 1)
-    placed_sta = ['-'] * len(data.placement_coordinate)
+    data = InputData()
 
-    for k in range(len(i)):
-        placed_sta[i[k]] = 'S' + str(j[k] + 1)
-    print(colored(placed_sta, 'magenta', 'on_green', attrs=['bold']))
+    # Given coordinates
+    data.gateway_coordinate = tuple(input_dataset['gateway_placement'])
+    data.placement_coordinate = tuple(input_dataset['placement'])
+
+    # Configuration of the problem
+    data.configuration.method = input_dataset["configuration"]["method"]
+    data.configuration.place_all_station = input_dataset["configuration"]["place_all_station"]
+    data.configuration.estimation_method = input_dataset["configuration"]["estimation_method"]
+    data.configuration.deviation = input_dataset["configuration"]["relative_deviation"] * (
+            data.gateway_coordinate[1] - data.gateway_coordinate[0]
+    ) if config["relative_deviation"] else None
+    data.configuration.last_optimal_noncoverage = \
+        config["last_optimal_noncoverage"]
+    data.configuration.drawing = config["drawing"]
+
+    # Exceptions
+    method = ["bf", "bab"]  # `brute force` and `branch and bound`
+    if data.configuration.method not in method:
+        raise ValueError('Wrong method of solving the problem.'
+                         'Choose bf or bnb')
+
+    estimation_method = ["ILP", 'knapsack', 'LP']
+    if data.configuration.estimation_method not in estimation_method:
+        raise ValueError('Wrong method of solving right estimation coverage of '
+                         'in branch and bound method.'
+                         'Choose ILP, knapsack or LP.')
+
+    if data.configuration.deviation is not None:
+        assert data.configuration.last_optimal_noncoverage is not None, \
+            "Input data consist relative deviation."
+        "It is necessary to give last found optimal noncoverage."
+
+    # Given restriction of the problem
+    data.restriction.delay_limit = input_dataset['delay_limit']
+    data.restriction.cost_limit = input_dataset['cost_limit']
+
+    # Given arrival parameters
+    data.arrival.rate = input_dataset['arrival_rate']
+    data.arrival.packet_size = input_dataset['average_packet_size']
+
+    # Given cost and throughput of stations
+    data.cost = data.cost = tuple(input_dataset["sta"][i]['cost']
+                                  for i in range(len(input_dataset["sta"])))
+    data.throughput = tuple(input_dataset["sta"][i]['throughput']
+                            for i in range(len(input_dataset["sta"])))
+
+    # Radio communication parameters
+    data.radio.sta = input_dataset["sta"]
+    data.radio.gateway = input_dataset["gateway"]
+    data.radio.user_device = input_dataset['user_device']
+    data.radio.frequency = input_dataset["frequency"]
+    data.radio.link_som = input_dataset["link_som"]
+    data.radio.coverage_som = input_dataset["coverage_som"]
+
+    ld, l2g, g2l, cov,  = get_station_parameters(
+        gateway=data.radio.gateway,
+        user_device=data.radio.user_device,
+        sta=data.radio.sta,
+        f=data.radio.frequency,
+        link_som=data.radio.link_som,
+        coverage_som=data.radio.coverage_som)
+    data.radio.coverage = cov
+    data.radio.link_distance = ld
+    data.radio.link_distance2gateway = l2g
+    data.radio.gateway2link_distance = g2l
+
+    return data
 
 
-def prepare_problem_data(input_data: Problem, config: dict) -> InputParameters:
+def prepare_problem_data(input_data: Problem,
+                         config: dict,
+                         input_dataset: dict) -> InputParameters:
     """
 
     Parameters
@@ -103,7 +225,7 @@ def prepare_problem_data(input_data: Problem, config: dict) -> InputParameters:
     data.gateway_coordinate = input_data.gateway_placement
     data.placement_coordinate = input_data.placement
 
-    data.cost = tuple(input_data.sta[i]['c']
+    data.cost = tuple(input_data.sta[i]['cost']
                       for i in range(len(input_data.sta)))
     data.throughput = tuple(
         input_data.sta[i]['throughput'] for i in range(len(input_data.sta)))
@@ -137,9 +259,9 @@ def prepare_problem_data(input_data: Problem, config: dict) -> InputParameters:
 
 
 def is_able_to_get_solution(node: Node, data: dataclass):
-    if data.place_all_station:
+    if data.configuration.place_all_station:
         i, _ = np.where(node.left_child.pi == 1)
-        if len(i) == len(data.coverage):
+        if len(i) == len(data.radio.coverage):
             return True
     else:
         if is_able_to_connect_gateways(node.left_child,
@@ -162,56 +284,68 @@ def check_node(i: int, j: int, node: Node, data: dataclass) -> bool:
     -------
         True or False
     """
-    if data.place_all_station:
+    if data.configuration.place_all_station:
         if check_able_to_connect_station(i, j, node, data):
             return True
     else:
         if (check_able_to_connect_station(i, j, node, data)
-                and check_cost(node.left_child, data.cost_limit)
-                and check_delay(node.left_child, data.delay_limit)):
+                and check_cost(node.left_child, data.restriction.cost_limit)
+                and check_delay(node.left_child, data.restriction.delay_limit)):
             return True
     return False
 
 
-def run(input_data: Problem, config: dict) -> None:
+def run(input_data: Problem, config: dict, input_dataset: dict) -> None:
     """ Getting problem"""
-
-    data = prepare_problem_data(input_data, config)
-
+    #
+    data = prepare(input_dataset, config)
     assert is_able_to_exist_solution(
-        data.link_distance,
-        data.link_distance2gateway,
-        data.gateway2link_distance,
+        data.radio.link_distance,
+        data.radio.link_distance2gateway,
+        data.radio.gateway2link_distance,
         data.placement_coordinate,
         data.gateway_coordinate), 'There is not problem for this case'
 
-    if data.method == 0:
-        method = "Branch_and_bound"
-        if not data.place_all_station:
-            matlab_engine = matlab.engine.start_matlab('-nojvm')
-            matlab_engine.cd(r'./branch_and_bound/estimation/matlab/',
-                             nargout=0)
-        else:
-            matlab_engine = None
+    # # TODO: delete it
+    # data = prepare_problem_data(input_data, config, input_dataset)
+    #
+    # assert is_able_to_exist_solution(
+    #     data.link_distance,
+    #     data.link_distance2gateway,
+    #     data.gateway2link_distance,
+    #     data.placement_coordinate,
+    #     data.gateway_coordinate), 'There is not problem for this case'
 
-    elif data.method == -1:
-        method = "Brute_force"
-        matlab_engine = None
-    else:
-        raise ValueError('Error in choosing the problem-solution method. '
-                         'Variable 0 means the branch and bound method. '
-                         'Variable -1 means the brute force method.')
 
-    print(f"\n {method} method \n")
+    # if data.method == 0:
+    #     method = "Branch_and_bound"
+    #     if not data.place_all_station:
+    #         matlab_engine = matlab.engine.start_matlab('-nojvm')
+    #         matlab_engine.cd(r'./branch_and_bound/estimation/matlab/',
+    #                          nargout=0)
+    #     else:
+    #         matlab_engine = None
+    #
+    # elif data.method == -1:
+    #     method = "Brute_force"
+    #     matlab_engine = None
+    # else:
+    #     raise ValueError('Error in choosing the problem-solution method. '
+    #                      'Variable 0 means the branch and bound method. '
+    #                      'Variable -1 means the brute force method.')
+    #
+    # print(f"\n {method} method \n")
+    matlab_engine = None
 
     """ 
-    Starting Searching
-    Initialize Tree and Schedule
+    Starting Searching. Initialize Tree and Schedule
     """
     tree = Tree()
-    tree.initiate(data.placement_coordinate, data.gateway_coordinate[1], data.coverage)
+    tree.initiate(data.placement_coordinate,
+                  data.gateway_coordinate[1],
+                  data.radio.coverage)
 
-    statistics = Schedule(tree.top, method)
+    statistics = Schedule(tree.top, data.configuration.method)
     statistics.record[-1]['optimal'] = data.gateway_coordinate[-1]
 
     parent = tree.top
@@ -239,7 +373,7 @@ def run(input_data: Problem, config: dict) -> None:
             # draw(tree.graph)
             if check_node(i, j, parent, data):
 
-                if method == "Branch_and_bound":
+                if data.configuration.method == "bab":
                     "Branch and bound method"
                     if check_estimation(i, j, parent, data, statistics,
                                         matlab_engine):
@@ -278,4 +412,5 @@ def run(input_data: Problem, config: dict) -> None:
     statistics.write_close_node(parent.key)
     if config["drawing"]:
         plot(tree, statistics)
+
     print('Total number of nodes is {}'.format(tree.node_keys[-1]))

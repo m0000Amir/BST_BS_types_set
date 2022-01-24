@@ -18,4 +18,4 @@ class ILP(KnapsackProblem):
         if self.num_place is None:
             self._b = np.vstack((self._b, self.get_column_num))
         else:
-            self._b = np.vstack((self._b, self.num_place))
+            self._b = np.hstack((self._b, self.num_place))

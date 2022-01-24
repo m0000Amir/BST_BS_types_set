@@ -24,7 +24,7 @@ class KnapsackProblem:
 
         """
         Objective function
-        Coefficient -2 means that we solve maximazation problem (multiple all 
+        Coefficient -2 means that we solve maximization problem (multiple all 
         value to -1) and also there are left coverage area and right coverage 
         area for each station (2* cov)
         """

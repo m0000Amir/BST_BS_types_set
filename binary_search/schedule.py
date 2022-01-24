@@ -4,7 +4,6 @@ Record is printed at each node if noncoverage estimate is no more than last
 record.
 """
 
-
 from termcolor import colored
 from binary_search.tree import Node
 
@@ -44,7 +43,8 @@ class Schedule:
             color = "cyan"
             key = "subsequence"
 
-        return colored("{} = {},  Cost = {},  Delay =  {},  node = {}".format(
+        return colored("{} = {},  Cost = {},  Delay =  {:.5f},  node = {} /"
+                       "".format(
             self._record_type,
             self.record_noncoverage[-1],
             self.record_cost[-1],
@@ -91,5 +91,7 @@ class Schedule:
         self.close_nodes.append(key)
 
     def append_estimates(self, node: Node) -> None:
-        self.estimate.update({node.left_child.key: node.left_child.noncoverage.estimate})
-        self.estimate.update({node.right_child.key: node.right_child.noncoverage.estimate})
+        self.estimate.update(
+            {node.left_child.key: node.left_child.noncoverage.estimate})
+        self.estimate.update(
+            {node.right_child.key: node.right_child.noncoverage.estimate})

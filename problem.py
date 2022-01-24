@@ -24,7 +24,7 @@ with open('input/article_experience4_debug.json') as json_file:
 
     input_data = Problem(input_dataset)
     start_time = time.time()
-    get.run(input_data, config)
+    get.run(input_data, config, input_dataset)
     new_est = time.time()
     get_nodes_number(input_dataset)
     print(colored(f'--- ESTIMATE TIME {new_est - start_time} seconds ---',
