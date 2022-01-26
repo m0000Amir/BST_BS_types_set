@@ -1,5 +1,5 @@
 """
-An optimal problem.
+An optimal placement problem.
 Branch and Bound method using Binary Search Tree.
 """
 from network.connection_between_station import is_able_to_exist_solution
@@ -16,53 +16,9 @@ from network.link_budget import get_station_parameters
 from drawing.figure import plot
 
 from dataclasses import dataclass
+from math import factorial
 
-import matlab.engine
 import numpy as np
-
-
-
-class Problem:
-    """
-    Input Data of Placement Problem
-
-    We have points of placements and gateways. Packets are described arrival
-    rate.
-    """
-    def __init__(self, dataset):
-        self.placement = tuple(dataset['placement'])
-        self.gateway_placement = tuple(dataset['gateway_placement'])
-        self.gateway = dataset['gateway']
-        self.user_device = dataset['user_device']
-        self.cost_limit = dataset['cost_limit']
-        self.delay_limit = dataset['delay_limit']
-        self.arrival_rate = dataset['arrival_rate']
-        self.average_packet_size = dataset['average_packet_size']
-        self.sta = dataset['sta']
-        self.frequency = dataset['frequency']
-        self.link_som = dataset['frequency']
-
-
-@dataclass()
-class InputParameters:
-    arrival_rate = None
-    average_packet_size = None
-    cost_limit = None
-    delay_limit = None
-    gateway_coordinate = None
-    placement_coordinate = None
-    cost = None
-    throughput = None
-    frequency = None
-    link_distance = None
-    link_distance2gateway = None
-    gateway2link_distance = None
-    coverage = None
-    deviation = None
-    method = None
-    place_all_station = None
-    estimation_method = None
-    last_optimal_noncoverage = None
 
 
 @dataclass()
@@ -104,22 +60,16 @@ class Radio:
 @dataclass()
 class InputData:
     configuration = Configuration
-
     gateway_coordinate = None
     placement_coordinate = None
-
     restriction = Restriction
     arrival = Arrival
-
     cost = None
     throughput = None
-
     radio = Radio
 
 
-
-
-def prepare(input_dataset: dict, config: dict) -> InputData:
+def prepare(input_dataset: dict) -> InputData:
     """
 
     Parameters
@@ -139,14 +89,17 @@ def prepare(input_dataset: dict, config: dict) -> InputData:
 
     # Configuration of the problem
     data.configuration.method = input_dataset["configuration"]["method"]
-    data.configuration.place_all_station = input_dataset["configuration"]["place_all_station"]
-    data.configuration.estimation_method = input_dataset["configuration"]["estimation_method"]
-    data.configuration.deviation = input_dataset["configuration"]["relative_deviation"] * (
-            data.gateway_coordinate[1] - data.gateway_coordinate[0]
-    ) if config["relative_deviation"] else None
-    data.configuration.last_optimal_noncoverage = \
-        config["last_optimal_noncoverage"]
-    data.configuration.drawing = config["drawing"]
+    data.configuration.place_all_station = (
+        input_dataset["configuration"]["place_all_station"])
+    data.configuration.estimation_method = (
+        input_dataset["configuration"]["estimation_method"])
+    data.configuration.deviation = (
+        input_dataset["configuration"]["relative_deviation"] * (
+            data.gateway_coordinate[1] - data.gateway_coordinate[0])
+        if input_dataset["configuration"]["relative_deviation"] else None)
+    data.configuration.last_optimal_noncoverage = (
+        input_dataset["configuration"]["last_optimal_noncoverage"])
+    data.configuration.drawing = input_dataset["configuration"]["drawing"]
 
     # Exceptions
     method = ["bf", "bab"]  # `brute force` and `branch and bound`
@@ -202,62 +155,6 @@ def prepare(input_dataset: dict, config: dict) -> InputData:
     return data
 
 
-def prepare_problem_data(input_data: Problem,
-                         config: dict,
-                         input_dataset: dict) -> InputParameters:
-    """
-
-    Parameters
-    ----------
-    input_data -  input from JSON-file
-    config - configuration parameters from JSON-file
-
-    Returns
-    -------
-        data: InputParameters
-    """
-    data = InputParameters()
-
-    data.arrival_rate = input_data.arrival_rate
-    data.average_packet_size = input_data.average_packet_size
-    data.cost_limit = input_data.cost_limit
-    data.delay_limit = input_data.delay_limit
-    data.gateway_coordinate = input_data.gateway_placement
-    data.placement_coordinate = input_data.placement
-
-    data.cost = tuple(input_data.sta[i]['cost']
-                      for i in range(len(input_data.sta)))
-    data.throughput = tuple(
-        input_data.sta[i]['throughput'] for i in range(len(input_data.sta)))
-    data.frequency = input_data.frequency
-    data.link_som = config["link_som"]
-    data.coverage_som = config["coverage_som"]
-    data.link_distance, \
-        data.link_distance2gateway, \
-        data.gateway2link_distance, \
-    data.coverage = get_station_parameters(input_data.gateway,
-                                           input_data.user_device,
-                                           input_data.sta,
-                                           data.frequency,
-                                           data.link_som,
-                                           data.coverage_som)
-
-    relative_deviation = config["relative_deviation"]
-
-    if relative_deviation is None:
-        data.deviation = None
-        data.last_optimal_noncoverage = None
-    else:
-        data.deviation = relative_deviation * (data.gateway_coordinate[1] -
-                                               data.gateway_coordinate[0])
-        data.last_optimal_noncoverage = config["last_optimal_noncoverage"]
-    data.method = config["method"]
-    data.place_all_station = config["place_all_station"]
-    data.estimation_method = config["estimation_method"]
-
-    return data
-
-
 def is_able_to_get_solution(node: Node, data: dataclass):
     if data.configuration.place_all_station:
         i, _ = np.where(node.left_child.pi == 1)
@@ -295,10 +192,10 @@ def check_node(i: int, j: int, node: Node, data: dataclass) -> bool:
     return False
 
 
-def run(input_data: Problem, config: dict, input_dataset: dict) -> None:
+def run(input_dataset: dict) -> None:
     """ Getting problem"""
     #
-    data = prepare(input_dataset, config)
+    data = prepare(input_dataset)
     assert is_able_to_exist_solution(
         data.radio.link_distance,
         data.radio.link_distance2gateway,
@@ -306,36 +203,13 @@ def run(input_data: Problem, config: dict, input_dataset: dict) -> None:
         data.placement_coordinate,
         data.gateway_coordinate), 'There is not problem for this case'
 
-    # # TODO: delete it
-    # data = prepare_problem_data(input_data, config, input_dataset)
-    #
-    # assert is_able_to_exist_solution(
-    #     data.link_distance,
-    #     data.link_distance2gateway,
-    #     data.gateway2link_distance,
-    #     data.placement_coordinate,
-    #     data.gateway_coordinate), 'There is not problem for this case'
-
-
-    # if data.method == 0:
-    #     method = "Branch_and_bound"
-    #     if not data.place_all_station:
-    #         matlab_engine = matlab.engine.start_matlab('-nojvm')
-    #         matlab_engine.cd(r'./branch_and_bound/estimation/matlab/',
-    #                          nargout=0)
-    #     else:
-    #         matlab_engine = None
-    #
-    # elif data.method == -1:
-    #     method = "Brute_force"
-    #     matlab_engine = None
-    # else:
-    #     raise ValueError('Error in choosing the problem-solution method. '
-    #                      'Variable 0 means the branch and bound method. '
-    #                      'Variable -1 means the brute force method.')
-    #
-    # print(f"\n {method} method \n")
-    matlab_engine = None
+    n = len(data.placement_coordinate)
+    m = len(data.radio.sta)
+    print(f'Placement number = {n}')
+    print(f'Station number = {m}')
+    if data.configuration.place_all_station:
+        result = (factorial(n)/(factorial(n-m) * factorial(m))) * factorial(m)
+        print(f'Number of feasible placement = {result}')
 
     """ 
     Starting Searching. Initialize Tree and Schedule
@@ -375,8 +249,7 @@ def run(input_data: Problem, config: dict, input_dataset: dict) -> None:
 
                 if data.configuration.method == "bab":
                     "Branch and bound method"
-                    if check_estimation(i, j, parent, data, statistics,
-                                        matlab_engine):
+                    if check_estimation(i, j, parent, data, statistics):
                         statistics.append_estimates(parent)
                         parent = parent.left_child
                     else:
@@ -397,7 +270,8 @@ def run(input_data: Problem, config: dict, input_dataset: dict) -> None:
 
                 parent.left_child.close = True
                 statistics.write_close_node(parent.left_child.key)
-                statistics.infeasible_placement_nodes.append(parent.left_child.key)
+                statistics.infeasible_placement_nodes.append(
+                    parent.left_child.key)
 
                 statistics.append_estimates(parent)
                 parent = parent.right_child
@@ -410,7 +284,8 @@ def run(input_data: Problem, config: dict, input_dataset: dict) -> None:
             tree.unchecked_node.pop()
 
     statistics.write_close_node(parent.key)
-    if config["drawing"]:
+    if input_dataset["configuration"]["drawing"]:
         plot(tree, statistics)
 
     print('Total number of nodes is {}'.format(tree.node_keys[-1]))
+

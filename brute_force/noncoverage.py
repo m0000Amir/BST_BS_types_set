@@ -29,7 +29,7 @@ def check_noncoverage(p: int,
         True if noncoverage_estimate is not more than obtained record,
         False - otherwise
     """
-    from binary_search.get import print_placed_station, is_able_to_get_solution
+    from binary_search.get import is_able_to_get_solution
 
     # if is_able_to_connect_gateways(node.left_child,
     #                                data.gateway_coordinate):

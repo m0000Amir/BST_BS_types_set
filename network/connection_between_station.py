@@ -123,7 +123,7 @@ def is_able_to_connect_to_right_station(p: int, s: int, node: Node,
     vacant_link_distance = data.radio.link_distance[unplaced_sta_index, :]
 
     if ((current_place == data.placement_coordinate[-1]) or
-            (len(vacant_link_distance) is 0)):
+            (len(vacant_link_distance) == 0)):
         right_place = data.gateway_coordinate[-1]
         current_link = data.radio.link_distance2gateway[s]
     else:

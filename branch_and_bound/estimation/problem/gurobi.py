@@ -23,11 +23,12 @@ def solve(problem: Union[ILP, KnapsackProblem]):
     """
     """ Optimal problem """
     # Create a new model
-    m = gp.Model("Estimation of right noncoverage")
-    try:
-
-
+    with gp.Env(empty=True) as env:
+        env.setParam('OutputFlag', 0)
+        env.start()
+        m = gp.Model("Estimation of right noncoverage", env=env)
         m.Params.LogToConsole = 0
+    try:
         _length = len(problem.get_f)
 
         x = m.addMVar(shape=(_length,),
@@ -39,10 +40,10 @@ def solve(problem: Union[ILP, KnapsackProblem]):
 
         m.setObjective(obj @ x, GRB.MINIMIZE)
 
-        if np.size(problem.get_ineq) is not 0:
+        if np.size(problem.get_ineq) != 0:
             m.addConstr(problem.get_ineq @ x <= problem.get_b,
                         name="inequality")
-        if np.size(problem.get_eq) is not 0:
+        if np.size(problem.get_eq) != 0:
             m.addConstr(problem.get_eq @ x == problem.get_beq,
                         name="equality")
         # Optimize model

@@ -69,7 +69,8 @@ def get_noncoverage_estimation(p: int,
                                for j in range(len(data.placement_coordinate))
                                if (j not in i) and (j != p)]
 
-    if len(vacant_stations_coverage) is 0 or len(vacant_placement_points) is 0:
+    if ((len(vacant_stations_coverage) == 0) or
+            (len(vacant_placement_points) == 0)):
         right_noncoverage_estimate = node.left_child.noncoverage.right
     else:
         remaining_cost = data.restriction.cost_limit - node.cost - data.cost[s]
@@ -151,7 +152,9 @@ def better_than_record(node: Node,
         # if node.left_child.noncoverage.estimate <= (
         #         statistics.record[-1]['optimal'] + data.deviation):
         if node.left_child.noncoverage.estimate <= (
-                data.last_optimal_noncoverage + data.deviation):
+                data.configuration.last_optimal_noncoverage +
+                data.configuration.deviation
+        ):
 
             # if is_able_to_connect_gateways(node.left_child,
             #                                data.gateway_coordinate):
@@ -159,17 +162,13 @@ def better_than_record(node: Node,
             if is_able_to_get_solution(node, data):
                 node_noncoverage = (node.left_child.noncoverage.left +
                                     node.left_child.noncoverage.right)
-                if node_noncoverage <= (data.last_optimal_noncoverage +
-                                        data.deviation):
-                    if len(statistics.record) == 1:
-                        # Initial record (all linear section)
-                        statistics.append_record(node, optimal=node_noncoverage)
-                        print(statistics)
-                        print_placed_station(node, data)
-                    else:
-                        statistics.append_record(node, feasible=node_noncoverage)
-                        print(statistics)
-                        print_placed_station(node, data)
+                if node_noncoverage <= (
+                        data.configuration.last_optimal_noncoverage +
+                         data.configuration.deviation
+                ):
+                    statistics.append_record(node, feasible=node_noncoverage)
+                    print(statistics)
+                    print_placed_station(node, data)
             return True
 
 
@@ -177,8 +176,7 @@ def check_estimation(p: int,
                      s: int,
                      node: Node,
                      data: dataclass,
-                     statistics: Schedule,
-                     eng) -> bool:
+                     statistics: Schedule) -> bool:
     # todo: delete eng
     """
 

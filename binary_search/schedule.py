@@ -43,7 +43,7 @@ class Schedule:
             color = "cyan"
             key = "subsequence"
 
-        return colored("{} = {},  Cost = {},  Delay =  {:.5f},  node = {} /"
+        return colored("{} = {},  Cost = {},  Delay = {:.5f},  node = {}"
                        "".format(
             self._record_type,
             self.record_noncoverage[-1],
@@ -65,11 +65,12 @@ class Schedule:
 
         elif feasible is not None:
             self.record[-1]['subsequence'].append(feasible)
-            self._record_type = '\tFeasible'
             self.record_noncoverage.append(feasible)
             self.record_cost.append(node.left_child.cost)
             self.record_delay.append(node.left_child.delay)
             self.record_node.append(node.left_child.key)
+            self._record_type = '\tFeasible'
+        a = 1
 
     def add(self, p, s, node):
         """
