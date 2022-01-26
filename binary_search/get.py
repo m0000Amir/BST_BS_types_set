@@ -219,13 +219,15 @@ def run(input_dataset: dict) -> None:
                   data.gateway_coordinate[1],
                   data.radio.coverage)
 
-    statistics = Schedule(tree.top, data.configuration.method)
+    statistics = Schedule(tree.top,
+                          data.configuration.method,
+                          data.gateway_coordinate)
     statistics.write_station_distance_parameters(
         data.radio.coverage,
         data.radio.link_distance,
         data.radio.link_distance2gateway,
         data.radio.gateway2link_distance)
-    statistics.record[-1]['optimal'] = data.gateway_coordinate[-1]
+    # statistics.record[-1]['optimal'] = data.gateway_coordinate[-1]
 
     parent = tree.top
     while tree.is_possible_to_add_new_nodes(parent):

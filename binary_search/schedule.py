@@ -15,7 +15,7 @@ class Schedule:
     """
     Solution record
     """
-    def __init__(self, top: Node, method: str) -> None:
+    def __init__(self, top: Node, method: str, gtw_coordinate) -> None:
         self.method = method
         self.placement_count = top.pi.shape[0]
         self.station_count = top.pi.shape[1]
@@ -33,8 +33,7 @@ class Schedule:
         self.step = list()
         """ Obtained Records"""
         self.records = list()
-        self.record = [{'optimal': None, 'subsequence': list()}]
-        self.record_noncoverage = list()
+        self.record_noncoverage = [gtw_coordinate[1]-gtw_coordinate[0]]
         self.record_pi = list()
         self.record_cost = list()
         self.record_delay = list()
@@ -64,9 +63,9 @@ class Schedule:
 
     def append_record(self, node: Node, optimal=None, feasible=None) -> None:
         if optimal is not None:
-            self.record.append({'optimal': None,
-                                'subsequence': list()})
-            self.record[-1]['optimal'] = optimal
+            # self.record.append({'optimal': None,
+            #                     'subsequence': list()})
+            # self.record[-1]['optimal'] = optimal
             self.record_noncoverage.append(optimal)
             # self.record_cost.append(node.left_child.cost)
             # self.record_delay.append(node.left_child.delay)
@@ -74,7 +73,7 @@ class Schedule:
             self._record_type = "Optimal"
 
         elif feasible is not None:
-            self.record[-1]['subsequence'].append(feasible)
+            # self.record[-1]['subsequence'].append(feasible)
             self.record_noncoverage.append(feasible)
             self._record_type = '\tFeasible'
         self.record_cost.append(node.left_child.cost)

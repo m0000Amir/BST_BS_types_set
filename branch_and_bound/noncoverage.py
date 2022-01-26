@@ -131,7 +131,8 @@ def better_than_record(node: Node,
     if data.configuration.deviation is None:
         "The method gives optimal solutions."
         if (node.left_child.noncoverage.estimate <
-                statistics.record[-1]['optimal']):
+                statistics.record_noncoverage[-1]):
+                # statistics.record[-1]['optimal']):
 
             # if is_able_to_connect_gateways(node.left_child,
             #                                data.gateway_coordinate):
@@ -139,7 +140,7 @@ def better_than_record(node: Node,
                 node_noncoverage = (node.left_child.noncoverage.left +
                                     node.left_child.noncoverage.right)
 
-                if node_noncoverage < statistics.record[-1]['optimal']:
+                if node_noncoverage < statistics.record_noncoverage[-1]:
                     statistics.append_record(node, optimal=node_noncoverage)
                     print(statistics)
                     # print_placed_station(node, data)
@@ -168,7 +169,7 @@ def better_than_record(node: Node,
                 ):
                     statistics.append_record(node, feasible=node_noncoverage)
                     print(statistics)
-                    print_placed_station(node, data)
+                    # print_placed_station(node, data)
             return True
 
 
@@ -204,7 +205,7 @@ def check_estimation(p: int,
         i, j = np.where(node.pi == 1)
 
         vacant_stations_coverage = [data.radio.coverage[i]
-                                    for i in range(len(data.coverage))
+                                    for i in range(len(data.radio.coverage))
                                     if (i not in j) and (i != s)]
         vacant_placement_points = [data.placement_coordinate[j]
                                    for j in
