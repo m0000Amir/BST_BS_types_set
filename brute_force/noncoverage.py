@@ -49,7 +49,7 @@ def check_noncoverage(p: int,
         statistics.append_record(node, optimal=node_noncoverage)
         # statistics.add(p, s, node.left_child)
         print(statistics)
-        print_placed_station(node, data)
+        # print_placed_station(node, data)
 
         # statistics.add(p, s, node.left_child)
 

@@ -16,21 +16,21 @@ import numpy as np
 from termcolor import colored
 
 
-def print_placed_station(node: Node, data: dataclass) -> None:
-    """
-    Print station placement
-    Parameters
-    ----------
-    node - current node
-    data - input data
-
-    """
-    i, j = np.where(node.left_child.pi == 1)
-    placed_sta = ['-'] * len(data.placement_coordinate)
-
-    for k in range(len(i)):
-        placed_sta[i[k]] = 'S' + str(j[k] + 1)
-    print(colored(placed_sta, 'magenta', 'on_green', attrs=['bold']))
+# def print_placed_station(node: Node, data: dataclass) -> None:
+#     """
+#     Print station placement
+#     Parameters
+#     ----------
+#     node - current node
+#     data - input data
+#
+#     """
+#     i, j = np.where(node.left_child.pi == 1)
+#     placed_sta = ['-'] * len(data.placement_coordinate)
+#
+#     for k in range(len(i)):
+#         placed_sta[i[k]] = 'S' + str(j[k] + 1)
+#     print(colored(placed_sta, 'magenta', 'on_green', attrs=['bold']))
 
 
 
@@ -142,7 +142,7 @@ def better_than_record(node: Node,
                 if node_noncoverage < statistics.record[-1]['optimal']:
                     statistics.append_record(node, optimal=node_noncoverage)
                     print(statistics)
-                    print_placed_station(node, data)
+                    # print_placed_station(node, data)
             return True
     else:
         """ 

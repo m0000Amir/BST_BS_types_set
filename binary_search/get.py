@@ -220,6 +220,11 @@ def run(input_dataset: dict) -> None:
                   data.radio.coverage)
 
     statistics = Schedule(tree.top, data.configuration.method)
+    statistics.write_station_distance_parameters(
+        data.radio.coverage,
+        data.radio.link_distance,
+        data.radio.link_distance2gateway,
+        data.radio.gateway2link_distance)
     statistics.record[-1]['optimal'] = data.gateway_coordinate[-1]
 
     parent = tree.top
@@ -287,5 +292,6 @@ def run(input_dataset: dict) -> None:
     if input_dataset["configuration"]["drawing"]:
         plot(tree, statistics)
 
+    statistics.save_json()
     print('Total number of nodes is {}'.format(tree.node_keys[-1]))
 
