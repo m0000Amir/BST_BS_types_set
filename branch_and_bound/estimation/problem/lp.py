@@ -2,8 +2,6 @@
 Linear Problem Solution.  https://scipy.org.
 Simplez method
 """
-import time
-
 from scipy.optimize import linprog
 import numpy as np
 

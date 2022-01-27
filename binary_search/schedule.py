@@ -1,20 +1,15 @@
 """
-Solution schedule for Binary search tree
-Record is printed at each node if noncoverage estimate is no more than last
-record.
+Solution schedule for Binary Search Tree
 """
 import json
+
+from binary_search.tree import Node
 
 from termcolor import colored
 import numpy as np
 
-from binary_search.tree import Node
-
 
 class Schedule:
-    """
-    Solution record
-    """
     def __init__(self, top: Node, method: str, gtw_coordinate) -> None:
         self.method = method
         self.placement_count = top.pi.shape[0]
@@ -43,7 +38,6 @@ class Schedule:
         self.infeasible_placement_nodes = list()
         self.close_nodes = list()
         self.placed_sta = list()
-
         self.add(float('inf'), float('inf'), top)
 
     def __str__(self):
@@ -51,7 +45,6 @@ class Schedule:
             color = "magenta"
         else:
             color = "cyan"
-
         return (colored(f"{self._record_type} = {self.record_noncoverage[-1]}, "
                         f"Cost = {self.record_cost[-1]},  "
                         f"Delay = {self.record_delay[-1]:.5f},  "
@@ -62,18 +55,24 @@ class Schedule:
                         'on_green', attrs=['bold']))
 
     def append_record(self, node: Node, optimal=None, feasible=None) -> None:
+        """
+        Adding a new record to the schedule
+
+        Parameters
+        ----------
+        node - binary tree node
+        optimal - optimal record
+        feasible - feasible record
+
+        Returns
+        -------
+            None
+        """
         if optimal is not None:
-            # self.record.append({'optimal': None,
-            #                     'subsequence': list()})
-            # self.record[-1]['optimal'] = optimal
             self.record_noncoverage.append(optimal)
-            # self.record_cost.append(node.left_child.cost)
-            # self.record_delay.append(node.left_child.delay)
-            # self.record_node.append(node.left_child.key)
             self._record_type = "Optimal"
 
         elif feasible is not None:
-            # self.record[-1]['subsequence'].append(feasible)
             self.record_noncoverage.append(feasible)
             self._record_type = '\tFeasible'
         self.record_cost.append(node.left_child.cost)
@@ -94,15 +93,16 @@ class Schedule:
              "node": self.record_node[-1],
              "placed_sta": placed_sta}
         )
-        a = 1
 
-    def add(self, p, s, node):
+    def add(self, p, s, node) -> None:
         """
+        Adding of New Row on Schedule
 
-        :param p: index of placement
-        :param s: index of station
-        :param node: tree node
-        :return: new row of Solution table
+        Parameters
+        ----------
+        p - index of placement coordinate
+        s - index of station
+        node - binary tree node
         """
         self.place.append(p)
         self.station.append(s)
@@ -112,10 +112,25 @@ class Schedule:
         self.delay.append(node.delay)
         self.step.append(node.key)
 
-    def write_close_node(self, key: int):
+    def write_close_node(self, key: int) -> None:
+        """
+        Writing close nodes of binary tree on schedule
+
+        Parameters
+        ----------
+        key - key of binary tree node
+
+        """
         self.close_nodes.append(key)
 
     def append_estimates(self, node: Node) -> None:
+        """
+        Appending noncoverage estimate on the current node
+
+        Parameters
+        ----------
+        node - binary tree node
+        """
         self.estimate.update(
             {node.left_child.key: node.left_child.noncoverage.estimate})
         self.estimate.update(
@@ -125,18 +140,23 @@ class Schedule:
                                           cov: np.ndarray,
                                           ld: np.ndarray,
                                           l2g: np.ndarray,
-                                          g2l: np.ndarray):
+                                          g2l: np.ndarray) -> None:
+        """ Writing radio communication parameters of station on schedule"""
         self.coverage = cov
         self.link_distance = ld
         self.link_distance2gtw = l2g
         self.gtw2link_distance = g2l
 
-    def save_json(self):
+    def save_json(self) -> None:
+        """ Obtained solution """
         solution = {"coverage": self.coverage.tolist(),
-                    "link": {"link_distance": self.link_distance.tolist(),
-                             "link_distance2gtw": self.link_distance2gtw.tolist(),
-                             "gtw2link_distance": self.gtw2link_distance.tolist()},
+                    "link": {
+                        "link_distance": self.link_distance.tolist(),
+                        "link_distance2gtw": self.link_distance2gtw.tolist(),
+                        "gtw2link_distance": self.gtw2link_distance.tolist()
+                    },
                     "records": self.records}
+
         json_object = json.dumps(solution)
         obj = open('./solution.json', 'w')
         obj.write(json_object)

@@ -2,12 +2,11 @@
 import json
 import time
 
-from termcolor import colored
-
 from binary_search import get
 
-with open('input/article_experience6_debug.json') as json_file:
-# with open('input/article_experience5_debug.json') as json_file:
+from termcolor import colored
+
+with open('input/article_experience4_debug.json') as json_file:
     """
     JSON include input data
     """

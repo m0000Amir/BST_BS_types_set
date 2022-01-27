@@ -1,5 +1,7 @@
-from binary_search.tree import Node
+from typing import Tuple, Any
+from dataclasses import dataclass
 
+from binary_search.tree import Node
 from branch_and_bound.estimation.problem.ilp import ILP
 from branch_and_bound.estimation.problem.knapsack import KnapsackProblem
 from branch_and_bound.estimation.problem import gurobi
@@ -7,31 +9,7 @@ from branch_and_bound.estimation.problem import lp
 from network.performance_characteristics import noncoverage_between_station
 from binary_search.schedule import Schedule
 
-
-from typing import Tuple, Any
-from dataclasses import dataclass
-
-
 import numpy as np
-from termcolor import colored
-
-
-# def print_placed_station(node: Node, data: dataclass) -> None:
-#     """
-#     Print station placement
-#     Parameters
-#     ----------
-#     node - current node
-#     data - input data
-#
-#     """
-#     i, j = np.where(node.left_child.pi == 1)
-#     placed_sta = ['-'] * len(data.placement_coordinate)
-#
-#     for k in range(len(i)):
-#         placed_sta[i[k]] = 'S' + str(j[k] + 1)
-#     print(colored(placed_sta, 'magenta', 'on_green', attrs=['bold']))
-
 
 
 def get_noncoverage_estimation(p: int,
@@ -62,7 +40,8 @@ def get_noncoverage_estimation(p: int,
     vacant_stations_coverage = [data.radio.coverage[i]
                                 for i in range(len(data.radio.coverage))
                                 if (i not in j) and (i != s)]
-    vacant_stations_cost = [data.cost[i] for i in range(len(data.radio.coverage))
+    vacant_stations_cost = [data.cost[i]
+                            for i in range(len(data.radio.coverage))
                             if (i not in j) and (i != s)]
 
     vacant_placement_points = [data.placement_coordinate[j]
@@ -79,7 +58,6 @@ def get_noncoverage_estimation(p: int,
             problem = KnapsackProblem(vacant_stations_coverage,
                                       vacant_stations_cost,
                                       remaining_cost)
-        # elif flag == 'ILP' or flag == 'LP':
         else:
             problem = ILP(vacant_stations_coverage,
                           vacant_stations_cost,
@@ -88,10 +66,7 @@ def get_noncoverage_estimation(p: int,
 
         if ((data.configuration.estimation_method == 'knapsack') or
                 (data.configuration.estimation_method == 'ILP')):
-            # # todo: delete matlpab solver
-            # right_cov_estimate = solve_ilp_problem(problem, engine)
             right_cov_estimate = gurobi.solve(problem)
-
         else:
             right_cov_estimate = lp.solve_problem(problem)
 
@@ -101,7 +76,6 @@ def get_noncoverage_estimation(p: int,
 
     novcov_estimate = (node.left_child.noncoverage.left +
                        right_noncoverage_estimate)
-
     return novcov_estimate
 
 
@@ -132,10 +106,6 @@ def better_than_record(node: Node,
         "The method gives optimal solutions."
         if (node.left_child.noncoverage.estimate <
                 statistics.record_noncoverage[-1]):
-                # statistics.record[-1]['optimal']):
-
-            # if is_able_to_connect_gateways(node.left_child,
-            #                                data.gateway_coordinate):
             if is_able_to_get_solution(node, data):
                 node_noncoverage = (node.left_child.noncoverage.left +
                                     node.left_child.noncoverage.right)
@@ -143,33 +113,25 @@ def better_than_record(node: Node,
                 if node_noncoverage < statistics.record_noncoverage[-1]:
                     statistics.append_record(node, optimal=node_noncoverage)
                     print(statistics)
-                    # print_placed_station(node, data)
             return True
     else:
         """ 
         The method gives the sequence of best decisions. Results consist of 
         optimal solutions and feasible solutions.
         """
-        # if node.left_child.noncoverage.estimate <= (
-        #         statistics.record[-1]['optimal'] + data.deviation):
         if node.left_child.noncoverage.estimate <= (
                 data.configuration.last_optimal_noncoverage +
                 data.configuration.deviation
         ):
-
-            # if is_able_to_connect_gateways(node.left_child,
-            #                                data.gateway_coordinate):
-
             if is_able_to_get_solution(node, data):
                 node_noncoverage = (node.left_child.noncoverage.left +
                                     node.left_child.noncoverage.right)
                 if node_noncoverage <= (
                         data.configuration.last_optimal_noncoverage +
-                         data.configuration.deviation
+                        data.configuration.deviation
                 ):
                     statistics.append_record(node, feasible=node_noncoverage)
                     print(statistics)
-                    # print_placed_station(node, data)
             return True
 
 
@@ -178,7 +140,6 @@ def check_estimation(p: int,
                      node: Node,
                      data: dataclass,
                      statistics: Schedule) -> bool:
-    # todo: delete eng
     """
 
     Parameters
@@ -195,22 +156,12 @@ def check_estimation(p: int,
         True if noncoverage_estimate is not more than obtained record,
         False - otherwise
     """
-
-
-    # if not data.place_all_station and eng is None:
-    #     raise TypeError
-
     if data.configuration.place_all_station:
-        # TODO: rewrite in function
         i, j = np.where(node.pi == 1)
 
         vacant_stations_coverage = [data.radio.coverage[i]
                                     for i in range(len(data.radio.coverage))
                                     if (i not in j) and (i != s)]
-        vacant_placement_points = [data.placement_coordinate[j]
-                                   for j in
-                                   range(len(data.placement_coordinate))
-                                   if (j not in i) and (j != p)]
 
         right_noncoverage_estimate = noncoverage_between_station(
             data.placement_coordinate[p], data.gateway_coordinate[-1],

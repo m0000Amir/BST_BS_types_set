@@ -8,17 +8,18 @@ Note:
     "Noncoverage" is equal to a difference between the length of a given line
     section and the total coverage of placed stations.
 """
-from binary_search.tree import Node
-
-
 from typing import Tuple, Any
 from dataclasses import dataclass
+
+from binary_search.tree import Node
 
 import numpy as np
 
 
-def noncoverage_between_station(place1: float, place2: float,
-                                cov1: float, cov2: float) -> float:
+def noncoverage_between_station(place1: float,
+                                place2: float,
+                                cov1: float,
+                                cov2: float) -> float:
     """
     Calculate noncoverage between placed station 1 and placed station 2
 
@@ -31,7 +32,7 @@ def noncoverage_between_station(place1: float, place2: float,
 
     Returns
     -------
-        The total noncoverage between station 1 and station 2
+    The total noncoverage between station 1 and station 2
     """
     dist = abs(place2 - place1)
     cov = cov1 + cov2
@@ -54,7 +55,7 @@ def solve_noncoverage(p: int,
 
     Returns
     -------
-        The total noncoverage in node
+    The total noncoverage in node
     """
     i, j = np.where(node.pi == 1)
 
@@ -102,15 +103,15 @@ def solve_cost(s: int, node: Node, data: dataclass) -> float:
 
 def solve_delay(s, node: Node, data: dataclass) -> float:
     """
-    Solving end-end delay using stochastic queueing model.
+    Solving end-to-end delay using stochastic queueing model.
 
-    Let's accept the assumption that any station represent as M/M/1 queue, where
-    arrivals are determined by a Poisson process and service times have an
-    exponential distribution.
+    Let's accept the assumption that any station represent as M/M/1 queue,
+    where arrivals are determined by a Poisson process and service times
+    have an exponential distribution.
 
     According to Burke's theorem at the exit from the node we also have a
-    Poisson flow with arrival rate that is equal to sum of arrival rates of all
-    incoming flows.
+    Poisson flow with arrival rate that is equal to sum of arrival rates
+    of all incoming flows.
 
     Parameters
     ----------
@@ -120,7 +121,7 @@ def solve_delay(s, node: Node, data: dataclass) -> float:
 
     Returns
     -------
-        End-to-end delay
+    End-to-end delay
     """
 
     departure_rate = 0.5*data.throughput[s] / data.arrival.packet_size
@@ -138,16 +139,22 @@ def solve_delay(s, node: Node, data: dataclass) -> float:
         mean_service_time = round(mean_system_size / total_arrival_rate, 5)
         return node.delay + mean_service_time
     else:
+        """Stationarity condition"""
         return float('inf')
 
 
 def check_cost(node: Node, cost_limit: int) -> bool:
     """
     Checking cost estimate for getting new noncoverage record
-    :param node: left node of binary search tree
-    :param cost_limit: cost limit of the problem
-    :return: True if total cost of tree node is less than problem limit,
-    False - otherwise
+    Parameters
+    ----------
+    node - left child node of binary search tree
+    cost_limit - cost limit of the problem
+
+    Returns
+    -------
+    True if the cost of the placed station is less than the cost limit,
+    False is otherwise
     """
     return node.cost <= cost_limit
 
@@ -155,10 +162,15 @@ def check_cost(node: Node, cost_limit: int) -> bool:
 def check_delay(node: Node, delay_limit: int) -> bool:
     """
     Checking delay estimate for getting new noncoverage record
-    :param node: left node of binary search tree
-    :param delay_limit: cost limit of the problem
-    :return: True if total cost of tree node is less than problem limit,
-    False - otherwise
+    Parameters
+    ----------
+    node - left child node of binary search tree
+    delay_limit - delay limit of the problem
+
+    Returns
+    -------
+    True if the end-to-end delay of the placed station is less than the delay
+    limit, False is otherwise
     """
     if node.delay == float('inf'):
         # It means that service utilization is more than 0.9 (rho > 1)

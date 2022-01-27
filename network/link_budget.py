@@ -103,8 +103,8 @@ def get_distance(lb_input: GetDistanceInput,
                  f: float = 2437,
                  k: float = -27.55) -> float:
     """
-        Using Link Budget Equation and Friis equation obtaining distance between
-        transmitter and receiver
+        Using Link Budget Equation and Friis equation obtaining distance
+        between transmitter and receiver
     Parameters
     ----------
     lb_input - link budget equation input
@@ -112,16 +112,13 @@ def get_distance(lb_input: GetDistanceInput,
     f - radio wave centre frequency
     k - constant of free space path loss equation
 
-
-
     Returns
     -------
-        Distance of radio signal broadcast
+    Distance of radio signal broadcast
 
     """
     l_fs = (lb_input.p_tr - lb_input.l_tr + lb_input.g_tr + lb_input.g_recv -
             lb_input.l_recv - lb_input.p_recv - som)
-    # distance = round(10 ** ((l_fs - 20 * log10(f) - k)/20))
     distance = round(10 ** ((l_fs - 20 * log10(f) +
                              lb_input.g_tr + lb_input.g_recv - k) / 20))
     return distance

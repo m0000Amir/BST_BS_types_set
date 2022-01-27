@@ -1,9 +1,10 @@
 """ DRAWING GRAPH"""
+from binary_search.schedule import Schedule
+from binary_search.tree import Tree
+
 import networkx as nx
 import matplotlib.pyplot as plt
 import matplotlib
-from binary_search.schedule import Schedule
-from binary_search.tree import Tree
 from networkx.drawing.nx_agraph import graphviz_layout
 
 

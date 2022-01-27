@@ -2,6 +2,9 @@
 An optimal placement problem.
 Branch and Bound method using Binary Search Tree.
 """
+from dataclasses import dataclass
+from math import factorial
+
 from network.connection_between_station import is_able_to_exist_solution
 from binary_search.tree import Tree, Node
 from binary_search.schedule import Schedule
@@ -14,9 +17,6 @@ from brute_force.noncoverage import check_noncoverage
 from branch_and_bound.noncoverage import check_estimation
 from network.link_budget import get_station_parameters
 from drawing.figure import plot
-
-from dataclasses import dataclass
-from math import factorial
 
 import numpy as np
 
@@ -71,11 +71,11 @@ class InputData:
 
 def prepare(input_dataset: dict) -> InputData:
     """
+    Preparation of problem input data
 
     Parameters
     ----------
-    input_data -  input from JSON-file
-    config - configuration parameters from JSON-file
+    input_dataset - dict() from JSON-file
 
     Returns
     -------
@@ -155,7 +155,19 @@ def prepare(input_dataset: dict) -> InputData:
     return data
 
 
-def is_able_to_get_solution(node: Node, data: dataclass):
+def is_able_to_get_solution(node: Node, data: dataclass) -> bool:
+    """
+    Criteria for acceptable placement of stations
+
+    Parameters
+    ----------
+    node - binary tree node
+    data - problem input data
+
+    Returns
+    -------
+        True or False
+    """
     if data.configuration.place_all_station:
         i, _ = np.where(node.left_child.pi == 1)
         if len(i) == len(data.radio.coverage):
@@ -169,13 +181,17 @@ def is_able_to_get_solution(node: Node, data: dataclass):
 
 def check_node(i: int, j: int, node: Node, data: dataclass) -> bool:
     """
+    Node check for:
+        - connection between left and right gateways;
+        - cost constraints;
+        - delay constraints.
 
     Parameters
     ----------
-    i - index of placement
-    j - index of station
-    node - current node
-    data - input data
+    i - index of placement coordinate
+    j - index of placed station
+    node - current tree node
+    data - input problem data
 
     Returns
     -------
@@ -193,8 +209,13 @@ def check_node(i: int, j: int, node: Node, data: dataclass) -> bool:
 
 
 def run(input_dataset: dict) -> None:
-    """ Getting problem"""
-    #
+    """
+    Search for the optimal placement
+
+    Parameters
+    ----------
+    input_dataset - dict() from JSON-file
+    """
     data = prepare(input_dataset)
     assert is_able_to_exist_solution(
         data.radio.link_distance,
@@ -227,7 +248,6 @@ def run(input_dataset: dict) -> None:
         data.radio.link_distance,
         data.radio.link_distance2gateway,
         data.radio.gateway2link_distance)
-    # statistics.record[-1]['optimal'] = data.gateway_coordinate[-1]
 
     parent = tree.top
     while tree.is_possible_to_add_new_nodes(parent):
@@ -250,10 +270,7 @@ def run(input_dataset: dict) -> None:
             parent.right_child.delay = parent.delay
             statistics.add(i, j, parent.right_child)
 
-            # PLOT GRAPH
-            # draw(tree.graph)
             if check_node(i, j, parent, data):
-
                 if data.configuration.method == "bab":
                     "Branch and bound method"
                     if check_estimation(i, j, parent, data, statistics):
@@ -269,7 +286,7 @@ def run(input_dataset: dict) -> None:
                         parent = parent.right_child
                 else:
                     "Brute force method"
-                    check_noncoverage(i, j, parent, data, statistics)
+                    check_noncoverage(parent, data, statistics)
                     statistics.append_estimates(parent)
                     parent = parent.left_child
             else:

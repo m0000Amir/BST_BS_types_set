@@ -1,17 +1,21 @@
-# This module uses Gurobi optimizer https://www.gurobi.com/
-# It consists Integer Linear Programming solution or Knapsack problem solution
+"""
+This module uses Gurobi optimizer https://www.gurobi.com/ to solve  Mixed
+Integer Problem (MIP).
+It consists Integer Linear Programming solution or Knapsack problem solution
+"""
 from typing import Union
+
+from .ilp import ILP
+from .knapsack import KnapsackProblem
 
 import gurobipy as gp
 from gurobipy import GRB
 import numpy as np
-from .ilp import ILP
-from .knapsack import KnapsackProblem
 
 
 def solve(problem: Union[ILP, KnapsackProblem]):
     """
-    MIP rproblem solver
+    MIP problem solver
     Parameters
     ----------
     problem - prepared input variable of MIP problem
@@ -21,7 +25,6 @@ def solve(problem: Union[ILP, KnapsackProblem]):
         Objective value
 
     """
-    """ Optimal problem """
     # Create a new model
     with gp.Env(empty=True) as env:
         env.setParam('OutputFlag', 0)

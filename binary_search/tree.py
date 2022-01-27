@@ -1,5 +1,5 @@
-""" Binary Search Tree"""
-from typing import List, Tuple, Any
+""" Binary Search Tree for Optimal Placement problem of stations"""
+from typing import List, Tuple
 
 import networkx as nx
 import numpy as np
@@ -47,15 +47,15 @@ class Tree:
         Parameters
         ----------
         place - placement points
+        right_gtw_place - coordinate of right gateway
         cov - coverage of stations
-
         """
         """ get init estimate and node init node """
         pi = np.ones([len(place), len(cov)]) * np.inf
         key = self._key_counter
         self.node_keys.append(key)
         self.top = Node(pi, key)
-        self.top.noncoverage.estimate = max(right_gtw_place - 2* sum(cov), 0)
+        self.top.noncoverage.estimate = max(right_gtw_place - 2*sum(cov), 0)
         self.top.cost = 0
         self.top.delay = 0
         self.graph.add_node(self.top.key)
