@@ -1,13 +1,14 @@
 certifi==2020.11.8
 cycler==0.10.0
 decorator==4.4.2
+gurobipy
 kiwisolver==1.3.1
-matlabengineforpython===R2019b
 matplotlib==3.3.2
 networkx==2.5
 numpy==1.19.4
 pandas==1.1.4
 Pillow==8.0.1
+pygraphviz==1.7
 pyparsing==2.4.7
 python-dateutil==2.8.1
 pytz==2020.4

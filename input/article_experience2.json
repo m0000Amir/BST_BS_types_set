@@ -1,0 +1,91 @@
+{
+  "placement": [
+    24,
+    40,
+    51,
+    84,
+    112,
+    138,
+    144,
+    178
+  ],
+  "gateway_placement": [
+    0,
+    210
+  ],
+  "gateway": {
+    "Ptr": 20,
+    "Gtr": 5,
+    "Ltr": 1,
+    "Precv": -77,
+    "Grecv": 5,
+    "Lrecv": 1
+  },
+  "user_device": {
+    "Ptr": 9,
+    "Gtr": 1,
+    "Ltr": 0
+  },
+  "frequency": 2437,
+  "cost_limit": 80,
+  "delay_limit": 0.02,
+  "average_packet_size": 0.012,
+  "arrival_rate": 1000,
+  "sta": [{
+    "Ptr_link": 19,
+    "Gtr_link": 4,
+    "Precv_link": -77,
+    "L_link": 1,
+    "L_coverage": 1,
+    "Precv_coverage": -73,
+    "Grecv_coverage": 4,
+    "cost": 22,
+    "mu": 6,
+    "throughput": 72.2
+  },{
+    "Ptr_link": 25,
+    "Gtr_link": 4,
+    "Precv_link": -77,
+    "L_link": 1,
+    "L_coverage": 1,
+    "Precv_coverage": -77,
+    "Grecv_coverage": 1,
+    "cost": 21,
+    "mu": 6,
+    "throughput": 72.2
+    },{
+    "Ptr_link": 19,
+    "Gtr_link": 4,
+    "Precv_link": -77,
+    "L_link": 1,
+    "L_coverage": 1,
+    "Precv_coverage": -73,
+    "Grecv_coverage": 2,
+    "cost": 19,
+    "mu": 6,
+    "throughput": 72.2
+  },{
+    "Ptr_link": 22,
+    "Gtr_link": 4,
+    "Precv_link": -77,
+    "L_link": 1,
+    "L_coverage": 1,
+    "Precv_coverage": -73,
+    "Grecv_coverage": 1,
+    "cost": 23,
+    "mu": 6,
+    "throughput": 72.2
+  },{
+    "Ptr_link": 25,
+    "Gtr_link": 4,
+    "Precv_link": -77,
+    "L_link": 1,
+    "L_coverage": 1,
+    "Precv_coverage": -77,
+    "Grecv_coverage": 1,
+    "cost": 20,
+    "mu": 6,
+    "throughput": 72.2
+    }
+  ]
+}
