@@ -5,7 +5,7 @@
     "place_all_station": false,
     "drawing": false,
     "last_optimal_noncoverage": 0,
-    "relative_deviation": 0.005
+    "relative_deviation": null
   },
   "placement": [
     36,

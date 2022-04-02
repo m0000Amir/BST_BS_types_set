@@ -171,3 +171,4 @@ if __name__ == "__main__":
 
     plt.savefig("tree_traversal.png")
     plt.show()
+

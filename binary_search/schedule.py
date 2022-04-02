@@ -48,7 +48,7 @@ class Schedule:
         return (colored(f"{self._record_type} = {self.record_noncoverage[-1]}, "
                         f"Cost = {self.record_cost[-1]},  "
                         f"Delay = {self.record_delay[-1]:.5f},  "
-                        f"node = {self.record_node[-1]}",
+                        f"Node = {self.record_node[-1]}",
                         color, attrs=['bold', 'blink']) +
                 "\n" +
                 colored(self.placed_sta[-1], 'magenta',
