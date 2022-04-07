@@ -6,6 +6,10 @@
 
 #IncludeRegexTransform: 
 
+/Users/m0000a/Projects/BST_BS_types_set/cpp/binary_search/get.h
+nlohmann/json.hpp
+-
+
 /Users/m0000a/Projects/BST_BS_types_set/cpp/problem.cpp
 iostream
 -
@@ -13,6 +17,12 @@ fstream
 -
 nlohmann/json.hpp
 -
+chrono
+-
+typeinfo
+-
+binary_search/get.h
+/Users/m0000a/Projects/BST_BS_types_set/cpp/binary_search/get.h
 
 /usr/local/include/nlohmann/adl_serializer.hpp
 type_traits

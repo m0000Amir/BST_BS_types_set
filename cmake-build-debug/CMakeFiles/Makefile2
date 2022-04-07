@@ -81,12 +81,12 @@ clean: CMakeFiles/BST_BS_types_set.dir/clean
 CMakeFiles/BST_BS_types_set.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/BST_BS_types_set.dir/build.make CMakeFiles/BST_BS_types_set.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/BST_BS_types_set.dir/build.make CMakeFiles/BST_BS_types_set.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/m0000a/Projects/BST_BS_types_set/cmake-build-debug/CMakeFiles --progress-num=1,2 "Built target BST_BS_types_set"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/m0000a/Projects/BST_BS_types_set/cmake-build-debug/CMakeFiles --progress-num=1,2,3 "Built target BST_BS_types_set"
 .PHONY : CMakeFiles/BST_BS_types_set.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/BST_BS_types_set.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/m0000a/Projects/BST_BS_types_set/cmake-build-debug/CMakeFiles 2
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/m0000a/Projects/BST_BS_types_set/cmake-build-debug/CMakeFiles 3
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/BST_BS_types_set.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /Users/m0000a/Projects/BST_BS_types_set/cmake-build-debug/CMakeFiles 0
 .PHONY : CMakeFiles/BST_BS_types_set.dir/rule

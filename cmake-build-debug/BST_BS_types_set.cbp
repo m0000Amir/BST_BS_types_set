@@ -84,6 +84,12 @@
 				</MakeCommands>
 			</Target>
 		</Build>
+		<Unit filename="/Users/m0000a/Projects/BST_BS_types_set/cpp/binary_search/get.cpp">
+			<Option target="BST_BS_types_set"/>
+		</Unit>
+		<Unit filename="/Users/m0000a/Projects/BST_BS_types_set/cpp/binary_search/get.h">
+			<Option target="BST_BS_types_set"/>
+		</Unit>
 		<Unit filename="/Users/m0000a/Projects/BST_BS_types_set/cpp/problem.cpp">
 			<Option target="BST_BS_types_set"/>
 		</Unit>

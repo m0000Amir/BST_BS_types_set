@@ -6,5 +6,6 @@ set(CMAKE_CXX_STANDARD 20)
 find_package(nlohmann_json 3.10.5 REQUIRED)
 
 add_executable(BST_BS_types_set
-        cpp/problem.cpp)
+        cpp/problem.cpp
+        cpp/binary_search/get.cpp cpp/binary_search/get.h)
 target_link_libraries(BST_BS_types_set PRIVATE nlohmann_json::nlohmann_json)

@@ -129,6 +129,30 @@ BST_BS_types_set/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/BST_BS_types_set.dir/build.make CMakeFiles/BST_BS_types_set.dir/build
 .PHONY : BST_BS_types_set/fast
 
+cpp/binary_search/get.o: cpp/binary_search/get.cpp.o
+.PHONY : cpp/binary_search/get.o
+
+# target to build an object file
+cpp/binary_search/get.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BST_BS_types_set.dir/build.make CMakeFiles/BST_BS_types_set.dir/cpp/binary_search/get.cpp.o
+.PHONY : cpp/binary_search/get.cpp.o
+
+cpp/binary_search/get.i: cpp/binary_search/get.cpp.i
+.PHONY : cpp/binary_search/get.i
+
+# target to preprocess a source file
+cpp/binary_search/get.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BST_BS_types_set.dir/build.make CMakeFiles/BST_BS_types_set.dir/cpp/binary_search/get.cpp.i
+.PHONY : cpp/binary_search/get.cpp.i
+
+cpp/binary_search/get.s: cpp/binary_search/get.cpp.s
+.PHONY : cpp/binary_search/get.s
+
+# target to generate assembly for a file
+cpp/binary_search/get.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BST_BS_types_set.dir/build.make CMakeFiles/BST_BS_types_set.dir/cpp/binary_search/get.cpp.s
+.PHONY : cpp/binary_search/get.cpp.s
+
 cpp/problem.o: cpp/problem.cpp.o
 .PHONY : cpp/problem.o
 
@@ -162,6 +186,9 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... BST_BS_types_set"
+	@echo "... cpp/binary_search/get.o"
+	@echo "... cpp/binary_search/get.i"
+	@echo "... cpp/binary_search/get.s"
 	@echo "... cpp/problem.o"
 	@echo "... cpp/problem.i"
 	@echo "... cpp/problem.s"
