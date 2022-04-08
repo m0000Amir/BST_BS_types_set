@@ -79,6 +79,6 @@ Obtained solution of optimal problem is `solution.json`.
 
 ## Publication 
 [A Problem of Optimal Location of Given Set of Base Stations in Wireless Networks with Linear Topology](https://link.springer.com/chapter/10.1007%2F978-3-030-36625-4_5)
-<img alt="img.png" height="10" src="https://assets-global.website-files.com/60252f4fc7403c719ecadc82/60252f4fc7403c481fcade21_ResearchGate_newgreen.svg" width="60"/>
+<img alt="img.png" height="15" src="https://link.springer.com/oscar-static/images/springerlink/svg/springerlink-6c9a864b59.svg" width="80"/>
 
 
