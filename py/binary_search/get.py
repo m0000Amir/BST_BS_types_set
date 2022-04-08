@@ -127,8 +127,8 @@ def prepare(input_dataset: dict) -> InputData:
     data.arrival.packet_size = input_dataset['average_packet_size']
 
     # Given cost and throughput of stations
-    data.cost = data.cost = tuple(input_dataset["sta"][i]['cost']
-                                  for i in range(len(input_dataset["sta"])))
+    data.cost = tuple(input_dataset["sta"][i]['cost']
+                      for i in range(len(input_dataset["sta"])))
     data.throughput = tuple(input_dataset["sta"][i]['throughput']
                             for i in range(len(input_dataset["sta"])))
 

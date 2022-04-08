@@ -5,7 +5,6 @@
 #include <fstream>
 #include <nlohmann/json.hpp>
 #include <chrono>
-#include <typeinfo>
 
 #include "binary_search/get.h"
 
@@ -25,10 +24,8 @@ int main() {
     std::cout << typeid(input_dataset.at("sta")).name() << std::endl;
     std::cout << "cost_limit is " << input_dataset.at("cost_limit")  << std::endl; // 12000
 
-    std::cout << "Time difference = " << (end - begin).count() << " [µs]" << std::endl;
-    std::cout << "Time difference = " << (end - begin).count() << " [ns]" << std::endl;
-
-
+    std::cout << "Time difference = " <<
+    std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << " ns" << std::endl;
 
     run(input_dataset);
 

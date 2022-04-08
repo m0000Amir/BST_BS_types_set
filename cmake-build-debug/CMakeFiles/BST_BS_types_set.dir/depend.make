@@ -3,6 +3,7 @@
 
 CMakeFiles/BST_BS_types_set.dir/cpp/binary_search/get.cpp.o: \
  ../cpp/binary_search/get.cpp \
+ ../cpp/network/link_budget.h \
  /usr/local/include/nlohmann/adl_serializer.hpp \
  /usr/local/include/nlohmann/byte_container_with_subtype.hpp \
  /usr/local/include/nlohmann/detail/conversions/from_json.hpp \
@@ -44,6 +45,8 @@ CMakeFiles/BST_BS_types_set.dir/cpp/binary_search/get.cpp.o: \
  /usr/local/include/nlohmann/ordered_map.hpp \
  /usr/local/include/nlohmann/thirdparty/hedley/hedley.hpp \
  /usr/local/include/nlohmann/thirdparty/hedley/hedley_undef.hpp
+CMakeFiles/BST_BS_types_set.dir/cpp/network/link_budget.cpp.o: \
+ ../cpp/network/link_budget.cpp
 CMakeFiles/BST_BS_types_set.dir/cpp/problem.cpp.o: \
  ../cpp/binary_search/get.h \
  ../cpp/problem.cpp \

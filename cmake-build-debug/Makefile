@@ -153,6 +153,30 @@ cpp/binary_search/get.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/BST_BS_types_set.dir/build.make CMakeFiles/BST_BS_types_set.dir/cpp/binary_search/get.cpp.s
 .PHONY : cpp/binary_search/get.cpp.s
 
+cpp/network/link_budget.o: cpp/network/link_budget.cpp.o
+.PHONY : cpp/network/link_budget.o
+
+# target to build an object file
+cpp/network/link_budget.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BST_BS_types_set.dir/build.make CMakeFiles/BST_BS_types_set.dir/cpp/network/link_budget.cpp.o
+.PHONY : cpp/network/link_budget.cpp.o
+
+cpp/network/link_budget.i: cpp/network/link_budget.cpp.i
+.PHONY : cpp/network/link_budget.i
+
+# target to preprocess a source file
+cpp/network/link_budget.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BST_BS_types_set.dir/build.make CMakeFiles/BST_BS_types_set.dir/cpp/network/link_budget.cpp.i
+.PHONY : cpp/network/link_budget.cpp.i
+
+cpp/network/link_budget.s: cpp/network/link_budget.cpp.s
+.PHONY : cpp/network/link_budget.s
+
+# target to generate assembly for a file
+cpp/network/link_budget.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BST_BS_types_set.dir/build.make CMakeFiles/BST_BS_types_set.dir/cpp/network/link_budget.cpp.s
+.PHONY : cpp/network/link_budget.cpp.s
+
 cpp/problem.o: cpp/problem.cpp.o
 .PHONY : cpp/problem.o
 
@@ -189,6 +213,9 @@ help:
 	@echo "... cpp/binary_search/get.o"
 	@echo "... cpp/binary_search/get.i"
 	@echo "... cpp/binary_search/get.s"
+	@echo "... cpp/network/link_budget.o"
+	@echo "... cpp/network/link_budget.i"
+	@echo "... cpp/network/link_budget.s"
 	@echo "... cpp/problem.o"
 	@echo "... cpp/problem.i"
 	@echo "... cpp/problem.s"
