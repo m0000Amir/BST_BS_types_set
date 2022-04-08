@@ -2,7 +2,6 @@
 
 input_debug.json
 # figures
-*.png
 *.jpeg
 *.jpg
 *.pdf
