@@ -69,7 +69,7 @@ To find optimal placement the algorithm used binary search tree.
 To estimate the right noncoverage is used SciPy and Gurobi Optimizer.
 
 
-<img src="https://scipy.github.io/devdocs/_static/logo.svg" alt="альтернативный текст" width="100" height="40">
+<img src="https://scipy.github.io/devdocs/_static/logo.svg" alt="альтернативный текст" width="70" height="40">
 <img src="https://cdn.gurobi.com/wp-content/uploads/2018/12/logo-final.png" alt="альтернативный текст" width="150" height="40">
 
 How to install package `gurobipy` see https://www.gurobi.com.
