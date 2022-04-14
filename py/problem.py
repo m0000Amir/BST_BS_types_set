@@ -6,7 +6,7 @@ from binary_search import get
 
 from termcolor import colored
 
-with open('./input/article_experience4_debug.json') as json_file:
+with open('../input/article_experience4_debug.json') as json_file:
     """
     JSON include input data
     """

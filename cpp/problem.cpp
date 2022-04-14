@@ -16,7 +16,7 @@ int main() {
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
     std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 
-    std::ifstream json_file("/Users/m0000a/Projects/BST_BS_types_set/input/article_experience4_debug.json");
+    std::ifstream json_file("../input/article_experience4_debug.json");
     json input_dataset = json::parse(json_file);
     auto a = input_dataset.at("sta");
     std::cout << a[0]<< std::endl;
