@@ -5,18 +5,18 @@ Branch and Bound method using Binary Search Tree.
 from dataclasses import dataclass
 from math import factorial
 
-from py.network.connection_between_station import is_able_to_exist_solution
-from py.binary_search.tree import Tree, Node
-from py.binary_search.schedule import Schedule
-from py.network.performance_characteristics import solve_cost, solve_delay
-from py.network.performance_characteristics import solve_noncoverage
-from py.network.performance_characteristics import check_delay, check_cost
-from py.network.connection_between_station import check_able_to_connect_station
-from py.network.connection_between_station import is_able_to_connect_gateways
-from py.brute_force.noncoverage import check_noncoverage
-from py.branch_and_bound.noncoverage import check_estimation
-from py.network.link_budget import get_station_parameters
-from py.drawing.figure import plot
+from bsoppy.network.connection_between_station import is_able_to_exist_solution
+from bsoppy.binary_search.tree import Tree, Node
+from bsoppy.binary_search.schedule import Schedule
+from bsoppy.network.performance_characteristics import solve_cost, solve_delay
+from bsoppy.network.performance_characteristics import solve_noncoverage
+from bsoppy.network.performance_characteristics import check_delay, check_cost
+from bsoppy.network.connection_between_station import check_able_to_connect_station
+from bsoppy.network.connection_between_station import is_able_to_connect_gateways
+from bsoppy.brute_force.noncoverage import check_noncoverage
+from bsoppy.branch_and_bound.noncoverage import check_estimation
+from bsoppy.network.link_budget import get_station_parameters
+from bsoppy.drawing.figure import plot
 
 import numpy as np
 

@@ -9,14 +9,17 @@
 #include <stdexcept>
 
 #include "../network/link_budget.h"
+#include "../network/connection_between_station.h"
+#include "../network/connection_between_station.h"
+#include "./tree.h"
 
 #include <nlohmann/json.hpp>
 
 using json = nlohmann::json;
 
 struct Restriction{
-    unsigned int cost_limit;
-    unsigned int delay_limit;
+    int cost_limit;
+    int delay_limit;
 };
 
 struct Arrival{
@@ -38,10 +41,10 @@ struct Radio{
     std::vector<std::map<std::string, int>> sta;
     int _sta_count = sta.size();
     std::map<std::string, int> gateway;
-    std::map<std::string, unsigned int> user_device;
-    unsigned int frequency;
-    unsigned int link_som;
-    unsigned int coverage_som;
+    std::map<std::string, int> user_device;
+    int frequency;
+    int link_som;
+    int coverage_som;
     std::vector<std::vector<double>> link_distance;
     std::vector<double> link_distance2gateway;
     std::vector<double> gateway2link_distance;
@@ -67,7 +70,7 @@ struct InputData{
  * @param input_dataset from JSON-file
  * @return  Data: data
  */
-InputData prepare(json input_dataset) {
+InputData prepare(json & input_dataset) {
     InputData data;
     // Given coordinates
     data.gateway_coordinate = input_dataset["gateway_placement"]
@@ -79,7 +82,6 @@ InputData prepare(json input_dataset) {
     data.configuration.place_all_station =
             input_dataset["configuration"]["place_all_station"];
 
-    std::cout << data.configuration.method << std::endl;
 
 
 
@@ -142,14 +144,18 @@ InputData prepare(json input_dataset) {
     data.radio.link_som = input_dataset["link_som"];
     data.radio.coverage_som = input_dataset["coverage_som"];
 
-    int a;
-    a = get_station_parameters(data.radio.gateway,
-                               data.radio.user_device,
-                               data.radio.sta,
-                               data.radio.frequency,
-                               data.radio.link_som,
-                               data.radio.coverage_som);
 
+    auto params = get_station_parameters(data.radio.gateway,
+                                         data.radio.user_device,
+                                         data.radio.sta,
+                                         data.radio.frequency,
+                                         data.radio.link_som,
+                                         data.radio.coverage_som);
+
+    data.radio.coverage = params.coverage;
+    data.radio.link_distance = params.link_distance2sta;
+    data.radio.link_distance2gateway = params.link_distance2gateway;
+    data.radio.gateway2link_distance = params.gtw2link_distance;
     return data;
 }
 
@@ -161,8 +167,38 @@ InputData prepare(json input_dataset) {
 void run(json input_dataset) {
 
     InputData data = prepare(input_dataset);
+//    if (is_able_to_exist_solution(data.radio.link_distance,
+//                                  data.radio.link_distance2gateway,
+//                                  data.radio.gateway2link_distance,
+//                                  data.placement_coordinate,
+//                                  data.gateway_coordinate)) {
+//        bool t;
+//    }
+    int n = data.placement_coordinate.size();
+    int m = data.radio.sta.size();
+    std::cout << "Placement number = " << n << std::endl;
+    std::cout << "Station number = " << m << std::endl;
+
+    if (data.configuration.place_all_station) {
+        /**
+         * C math library includes gamma function. Since Г(n) = (n-1)! for
+         * positive integers, using tgamma of i+1 yields i!.
+         */
+        double feasible_placement = (std::tgamma(n+1)/(
+                std::tgamma(n + 1 - m - 1) * std::tgamma(m+1))
+                        ) * std::tgamma(m+1);
+        std::cout << "Number of feasible placement = " << feasible_placement << std::endl;
+    }
+
+    /**
+     * Starting Searching. Initialize Tree and Schedule
+     */
+
+    std::vector<std::vector<double>> _val(10, std::vector<double>(10));
+    int key = 0;
+    Tree tree;
+
+    std::cout << "tree"<< std::endl;
 
     std::cout << "Hi!" << std::endl;
-
-
 }

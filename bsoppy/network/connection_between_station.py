@@ -8,7 +8,7 @@ the left gateway to the right gateway in wireless network.
 from typing import Tuple
 from dataclasses import dataclass
 
-from py.binary_search.tree import Node
+from bsoppy.binary_search.tree import Node
 
 import numpy as np
 
@@ -71,7 +71,7 @@ def is_able_to_exist_solution(link_distance: np.ndarray,
     """
     i = np.argmax(link_distance2gtw)
     first_max = link_distance2gtw[i]
-
+    # TODO: check this condition
     if not (_in_range(gtw[0], place[0], first_max) and
             _in_range(gtw[0], place[0], gtw2link_distance[i]) and
             _in_range(gtw[1], place[-1], first_max) and

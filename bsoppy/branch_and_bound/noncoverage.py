@@ -1,12 +1,12 @@
 from typing import Tuple
 from dataclasses import dataclass
 
-from py.binary_search.tree import Node
-from py.branch_and_bound.estimation.problem.ilp import ILP
-from py.branch_and_bound.estimation.problem.knapsack import KnapsackProblem
-from py.branch_and_bound.estimation.problem import gurobi, lp
-from py.network.performance_characteristics import noncoverage_between_station
-from py.binary_search.schedule import Schedule
+from bsoppy.binary_search.tree import Node
+from bsoppy.branch_and_bound.estimation.problem.ilp import ILP
+from bsoppy.branch_and_bound.estimation.problem.knapsack import KnapsackProblem
+from bsoppy.branch_and_bound.estimation.problem import gurobi, lp
+from bsoppy.network.performance_characteristics import noncoverage_between_station
+from bsoppy.binary_search.schedule import Schedule
 
 import numpy as np
 
@@ -99,7 +99,7 @@ def better_than_record(node: Node,
         True or False
 
     """
-    from py.binary_search.get import is_able_to_get_solution
+    from bsoppy.binary_search.get import is_able_to_get_solution
 
     if data.configuration.deviation is None:
         "The method gives optimal solutions."

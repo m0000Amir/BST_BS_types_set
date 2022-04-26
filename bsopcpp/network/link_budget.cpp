@@ -45,10 +45,10 @@
 
 #include <iostream>
 #include <cmath>
-#include <string>
 #include <map>
 #include <vector>
 #include "../../cppitertools/product.hpp"
+#include "link_budget.h"
 
 
 /**
@@ -70,9 +70,9 @@ struct StaParametersSet{
  * coverage parameter between station and user device
  */
 struct UserDeviceParameterSet {
-    unsigned int p_tr;
-    unsigned int g_tr;
-    unsigned int l_tr;
+    int p_tr;
+    int g_tr;
+    int l_tr;
 };
 
 /**
@@ -96,9 +96,11 @@ struct GetDistanceInput{
     int l_tr;
     int g_tr;
     int p_recv;
-    int g_recv;
     int l_recv;
+    int g_recv;
+
 };
+
 
 /**
  * Using Link Budget Equation and Friis equation obtaining distance
@@ -118,17 +120,65 @@ double get_distance(GetDistanceInput lb_input,
 
     double distance = std::pow(
             10,
-            (l_fs - 20 * std::log10(f) + lb_input.g_tr + lb_input.g_recv - k) / 20
+            (l_fs - 20 * std::log10(f) +
+            lb_input.g_tr + lb_input.g_recv - k) / 20
             );
-    return distance;
+    return std::round(distance);
 }
 
-int get_station_parameters(std::map<std::string, int> gateway,
-                           std::map<std::string, unsigned int> user_device,
-                           std::vector<std::map<std::string, int>> sta,
-                           int f,
-                           int link_som,
-                           int coverage_som) {
+/**
+ * Print solving optimization problem parameters
+ * @param link_distance2sta
+ * @param link_distance2gateway
+ * @param gtw2link_distance
+ * @param coverage
+ */
+void PrintParameters(std::vector<std::vector<double>>& link_distance2sta,
+                     std::vector<double>& link_distance2gateway,
+                     std::vector<double>& gtw2link_distance,
+                     std::vector<double>& coverage) {
+    std::cout << "-- Coverage -- " << std::endl;
+    for (auto& cov : coverage) {
+        std::cout << cov << "\t";
+    }
+    std::cout << "\n";
+
+    std::cout << "-- Link Distance -- " << std::endl;
+    for (auto& fromSta1: link_distance2sta) {
+        for (auto& toSta2: fromSta1) {
+            std::cout << toSta2 << "\t";
+        }
+        std::cout << "\n";
+    }
+    std::cout << "\n";
+
+    std::cout << "-- Link Distance to Gateway -- " << std::endl;
+    for (auto& l2g : link_distance2gateway) {
+        std::cout << l2g << "\t";
+    }
+    std::cout << "\n";
+    std::cout << "-- Link Distance from Gateway -- " << std::endl;
+    for (auto& g2l : gtw2link_distance) {
+        std::cout << g2l << "\t";
+    }
+    std::cout << "\n";
+}
+
+/**
+ * Prepare input parameters for optimization problem
+ * @param gateway parameters
+ * @param user_device parameters
+ * @param sta parameters
+ * @param f frequency
+ * @param link_som system operation margin for link connection
+ * @param coverage_som system operation margin for coverage
+ * @return
+ */
+
+ProblemParameters get_station_parameters(std::map<std::string, int> gateway,
+                                         std::map<std::string, int> user_device,
+                                         std::vector<std::map<std::string, int>> sta,
+                                         int f, int link_som, int coverage_som) {
 
     StaParametersSet sta_param;
     for (auto &s: sta) {
@@ -156,9 +206,9 @@ int get_station_parameters(std::map<std::string, int> gateway,
     };
 
 
-    std::vector<std::vector<double>> link_distance2sta(sta.size(),
-                                                       std::vector<double>(
-                                                               sta.size()));
+    std::vector<std::vector<double>> link_distance2sta(
+            sta.size(),std::vector<double>(sta.size())
+    );
     std::vector<double> link_distance2gateway(sta.size(), 0);
     std::vector<double> gtw2link_distance(sta.size(), 0);
     std::vector<double> coverage(sta.size(), 0);
@@ -171,15 +221,15 @@ int get_station_parameters(std::map<std::string, int> gateway,
     }
 
     for (auto&& [s1, s2] : iter::product(_i, _j)) {
-        std::cout << s1 << ", " << s2 << '\n';
         if (s1 != s2) {
             GetDistanceInput ld_input = {
                     sta_param.p_tr_link[s1],
                     sta_param.l_link[s1],
                     sta_param.g_tr_link[s1],
                     sta_param.p_recv_link[s2],
-                    sta_param.g_tr_link[s2],
-                    sta_param.l_link[s2]
+                    sta_param.l_link[s2],
+                    sta_param.g_tr_link[s2]
+
             };
             link_distance2sta[s1][s2] = get_distance(ld_input,
                                                      link_som,
@@ -193,28 +243,48 @@ int get_station_parameters(std::map<std::string, int> gateway,
                 sta_param.l_link[s1],
                 sta_param.g_tr_link[s1],
                 gtw_param.p_recv,
-                gtw_param.g_recv,
-                gtw_param.l_recv
+                gtw_param.l_recv,
+                gtw_param.g_recv
+
         };
         link_distance2gateway[s1] = get_distance(ld2gtw_input,
                                                  link_som,
                                                  f=f);
+        GetDistanceInput gtw2ld_input = {
+                gtw_param.p_tr,
+                gtw_param.l_recv,
+                gtw_param.g_tr,
+                sta_param.p_recv_link[s1],
+                sta_param.l_link[s1],
+                sta_param.g_tr_link[s1],
+        };
+        gtw2link_distance[s1] = get_distance(gtw2ld_input,
+                                             link_som,
+                                             f=f);
+
+        GetDistanceInput coverage_input = {
+                ud_param.p_tr,
+                ud_param.l_tr,
+                ud_param.g_tr,
+                sta_param.p_recv_coverage[s1],
+                sta_param.l_coverage[s1],
+                sta_param.g_recv_coverage[s1]
+        };
+        coverage[s1] = get_distance(coverage_input, coverage_som, f=f);
     }
 
-    int aa;
+    PrintParameters(link_distance2sta,
+                    link_distance2gateway,
+                    gtw2link_distance,
+                    coverage);
 
+    ProblemParameters params = {
+            link_distance2sta,
+            link_distance2gateway,
+            gtw2link_distance,
+            coverage
+    };
 
+    return params;
 
-
-//    std::cout << link_distance2sta[0][0] << std::endl;
-
-    std::vector<int> v1{1,2,3};
-    std::vector<int> v2{7,8};
-    std::vector<std::string> v3{"the","cat"};
-    std::vector<std::string> v4{"hi","what's","up","dude"};
-    for (auto&& [a, b, c, d] : iter::product(v1,v2,v3,v4)) {
-        std::cout << a << ", " << b << ", " << c << ", " << d << '\n';
-    }
-
-    return 0;
 }

@@ -1,4 +1,4 @@
-from py.branch_and_bound.estimation.problem.knapsack import KnapsackProblem
+from bsoppy.branch_and_bound.estimation.problem.knapsack import KnapsackProblem
 
 import numpy as np
 

@@ -18,7 +18,7 @@ linear topology. It is the proposed Branch and Bound method of solving the probl
 
 
 
-![figure](py/drawing/bsp.png?raw=true "Title")
+![figure](bsoppy/drawing/bsp.png?raw=true "Title")
 
 ## Input data
 Input data is JSON-file, which consists of optimal problem data and
@@ -63,7 +63,7 @@ from obtained solution.
 ### The binary tree
 
 To find optimal placement the algorithm used binary search tree.
-![figure](py/drawing/tree_traversal.png?raw=true "Title")
+![figure](bsoppy/drawing/tree_traversal.png?raw=true "Title")
 
 ### The estimation of the right noncoverage
 To estimate the right noncoverage is used SciPy and Gurobi Optimizer.

@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
-from py.binary_search.tree import Node
-from py.binary_search.schedule import Schedule
+from bsoppy.binary_search.tree import Node
+from bsoppy.binary_search.schedule import Schedule
 
 
 def check_noncoverage(node: Node,

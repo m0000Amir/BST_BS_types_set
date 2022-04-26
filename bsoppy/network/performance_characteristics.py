@@ -11,7 +11,7 @@ Note:
 from typing import Tuple
 from dataclasses import dataclass
 
-from py.binary_search.tree import Node
+from bsoppy.binary_search.tree import Node
 
 import numpy as np
 

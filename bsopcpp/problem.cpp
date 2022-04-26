@@ -18,8 +18,6 @@ int main() {
 
     std::ifstream json_file("../input/article_experience4_debug.json");
     json input_dataset = json::parse(json_file);
-    auto a = input_dataset.at("sta");
-    std::cout << a[0]<< std::endl;
 
     std::cout << typeid(input_dataset.at("sta")).name() << std::endl;
     std::cout << "cost_limit is " << input_dataset.at("cost_limit")  << std::endl; // 12000

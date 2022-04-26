@@ -1,6 +1,6 @@
 """ DRAWING GRAPH"""
-from py.binary_search.schedule import Schedule
-from py.binary_search.tree import Tree
+from bsoppy.binary_search.schedule import Schedule
+from bsoppy.binary_search.tree import Tree
 
 import networkx as nx
 import matplotlib.pyplot as plt

@@ -3,7 +3,7 @@ Solution schedule for Binary Search Tree
 """
 import json
 
-from py.binary_search.tree import Node
+from bsoppy.binary_search.tree import Node
 
 from termcolor import colored
 import numpy as np
